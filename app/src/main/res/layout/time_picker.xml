@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:id="@+id/set_time">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="09"
+                android:textSize="60dp"
+                android:id="@+id/arrival_time_hour"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" : "
+                android:textSize="45dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30"
+                android:textSize="60dp"
+                android:id="@+id/arrival_time_minute"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="am"
+                android:textSize="45dp"
+                android:id="@+id/ampm" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="7">
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="월"
+                android:textOn="월"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_1"/>
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="화"
+                android:textOn="화"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_2"/>
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="수"
+                android:textOn="수"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_3"/>
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="목"
+                android:textOn="목"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_4"/>
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="금"
+                android:textOn="금"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_5"/>
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="토"
+                android:textOn="토"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_6"/>
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="일"
+                android:textOn="일"
+                android:textSize="30dp"
+                android:layout_weight="1"
+                android:onClick="togglePicker"
+                android:id="@+id/day_7"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="출발전\n미리알림"
+                android:textSize="15dp"
+                android:textAlignment="center"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="10 분전"
+                android:id="@+id/pre_alram"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/addAlramButton"
+        android:padding="0dp"
+        android:text="설정 완료"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:background="@color/colorOrange"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>

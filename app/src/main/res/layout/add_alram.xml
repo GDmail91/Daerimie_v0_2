@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:textSize="20sp"
-                android:text="출발 시간" />
+                android:text="알림 시간 설정" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -139,14 +139,14 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
+                    android:layout_weight="3"
                     android:layout_gravity="center"
                     android:gravity="right"
                     android:text="06"
                     android:textSize="30sp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:id="@+id/timeHour"/>
+                    android:id="@+id/arrival_time_hour"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -159,14 +159,24 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
+                    android:layout_weight="2"
                     android:layout_gravity="center"
                     android:gravity="left"
                     android:text="30"
                     android:textSize="30sp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:id="@+id/timeMinute"/>
+                    android:id="@+id/arrival_time_minute"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:text="am"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
+                    android:id="@+id/ampm" />
 
                 <Button
                     android:layout_width="0dp"

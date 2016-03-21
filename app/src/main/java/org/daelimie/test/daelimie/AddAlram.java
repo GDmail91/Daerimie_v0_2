@@ -25,11 +25,17 @@ public class AddAlram extends AppCompatActivity {
     private LatLng destinationLocate; //도착지 위도, 경도
     private String destinationPlaceId; //도착지 지역 정보
     private String destinationName; // 도착지 이름
-    private String arrivalTime; // 도착하고 싶은 시간
+    private int arrivalTimeHour; // 도착하고 싶은 시간
+    private int arrivalTimeMinute; // 도착하고 싶은 분
+    private boolean[] alramDay; // 알림 받을 요일
+    private int preAlram; // 출발전 미리알림 시간
 
     // 뷰
     private TextView departureNameView;
     private TextView destinationNameView;
+    private TextView arrivalTimeHourView;
+    private TextView arrivalTimeMinuteView;
+    private TextView ampm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,9 @@ public class AddAlram extends AppCompatActivity {
 
         departureNameView = (TextView) findViewById(R.id.departureNameView);
         destinationNameView = (TextView) findViewById(R.id.destinationNameView);
+        arrivalTimeHourView = (TextView) findViewById(R.id.arrival_time_hour);
+        arrivalTimeMinuteView = (TextView) findViewById(R.id.arrival_time_minute);
+        ampm = (TextView) findViewById(R.id.ampm);
 
         // 출발지 버튼정의
         Button setDeparture = (Button) findViewById(R.id.setDeparture);
@@ -63,24 +72,36 @@ public class AddAlram extends AppCompatActivity {
             }
         });
 
+        // 도착 시간 설정
+        Button setTime = (Button) findViewById(R.id.setTime);
+        setTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AddAlram.this, SetTimePicker.class);
+                intent.putExtra("BUTTON_FLAG", "TIMER");
+                startActivityForResult(intent, 0);
+            }
+        });
+
         // 경로추가 버튼정의
         Button addRouteButton = (Button) findViewById(R.id.addRouteButton);
         addRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AddAlram.this, RoutePicker.class);
-                Double depLocateLat = departureLocate.latitude;
-                Double depLocateLng = departureLocate.longitude;
-                Double desLocateLat = destinationLocate.latitude;
-                Double desLocateLng = destinationLocate.longitude;
+                Double depLocateLat = departureLocate.latitude;     // 출발지 위도
+                Double depLocateLng = departureLocate.longitude;    // 출발지 경도
+                Double desLocateLat = destinationLocate.latitude;   // 도착지 위도
+                Double desLocateLng = destinationLocate.longitude;  // 도착지 경도
+                // 인텐트 추가
                 intent.putExtra("departureLocateLat", depLocateLat);
                 intent.putExtra("departureLocateLng", depLocateLng);
-                intent.putExtra("departurePlaceId", departurePlaceId);
-                intent.putExtra("departureName", departureName);
+                intent.putExtra("departurePlaceId", departurePlaceId);  // 출발지 plcae_id
+                intent.putExtra("departureName", departureName);        // 출발지 이름
                 intent.putExtra("destinationLocateLat", desLocateLat);
                 intent.putExtra("destinationLocateLng", desLocateLng);
-                intent.putExtra("destinationPlaceId", destinationPlaceId);
-                intent.putExtra("destinationName", destinationName);
+                intent.putExtra("destinationPlaceId", destinationPlaceId);  // 도착지 plcae_id
+                intent.putExtra("destinationName", destinationName);        // 도착지 이름
                 startActivity(intent);
             }
         });
@@ -103,6 +124,35 @@ public class AddAlram extends AppCompatActivity {
                     destinationPlaceId = intent.getStringExtra("selectedPlaceId");
                     destinationName = intent.getStringExtra("selectedName");
                     destinationNameView.setText(destinationName);
+                    break;
+
+                case "TIMER":
+                    // TODO 알람 시간 설정 후
+                    arrivalTimeHour = intent.getIntExtra("arrivalTimeHour", 0);
+                    arrivalTimeMinute = intent.getIntExtra("arrivalTimeMinute", 0);
+                    alramDay = intent.getBooleanArrayExtra("alramDay");
+                    preAlram = intent.getIntExtra("preAlram", 0);
+
+                    Log.d(TAG, "" + arrivalTimeHour + "" + arrivalTimeMinute);
+                    Log.d(TAG, alramDay.toString());
+                    Log.d(TAG, ""+preAlram);
+
+                    if (arrivalTimeHour > 12) {
+                        arrivalTimeHourView.setText(String.valueOf(arrivalTimeHour-12));
+                        ampm.setText("pm");
+                    } else if (arrivalTimeHour == 0){
+                        arrivalTimeHourView.setText("12");
+                        ampm.setText("am");
+                    } else {
+                        arrivalTimeHourView.setText(String.valueOf(arrivalTimeHour));
+                        ampm.setText("am");
+                    }
+
+                    if (arrivalTimeMinute < 10) {
+                        arrivalTimeMinuteView.setText("0"+String.valueOf(arrivalTimeMinute));
+                    } else {
+                        arrivalTimeMinuteView.setText(String.valueOf(arrivalTimeMinute));
+                    }
                     break;
             }
         }
