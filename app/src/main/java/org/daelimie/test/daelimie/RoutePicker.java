@@ -119,11 +119,13 @@ public class RoutePicker extends AppCompatActivity {
             }
         });
 
+        // 경로 선택 완료
         Button addRouteButton = (Button) findViewById(R.id.addRouteButton);
         addRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(RoutePicker.this, InstantAlram.class);
+                startActivity(intent);
             }
         });
 

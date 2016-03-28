@@ -56,6 +56,11 @@
         <activity android:name=".SetTimePicker">
 
         </activity>
+
+        <activity android:name=".InstantAlram"
+            android:theme="@android:style/Theme.Dialog">
+
+        </activity>
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
