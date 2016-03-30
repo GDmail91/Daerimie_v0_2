@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:weightSum="10"
-    android:background="@color/instantAlram">
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2">
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="30dp"
-        android:paddingRight="30dp"
-        android:paddingLeft="30dp"
-        android:orientation="vertical"
-        android:layout_weight="6"
-        android:layout_gravity="center"
-        android:background="@color/whiteGray"
-        android:elevation="10dp">
+    android:layout_width="280dp"
+    android:layout_height="162dp"
+    android:paddingTop="30dp"
+    android:paddingRight="30dp"
+    android:paddingLeft="30dp"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:background="@color/whiteGray">
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,7 +27,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal|bottom"
             android:background="#00000000"
             style="?android:attr/borderlessButtonStyle"
             android:text="OK"
@@ -49,10 +35,4 @@
             android:textColor="@color/textPrimary"
             android:id="@+id/alram_confirm"/>
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2">
-    </LinearLayout>
 </LinearLayout>

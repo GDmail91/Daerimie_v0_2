@@ -72,7 +72,7 @@ public class AddAlram extends AppCompatActivity {
             }
         });
 
-        // 도착 시간 설정
+        // 시간/날짜 설정
         Button setTime = (Button) findViewById(R.id.setTime);
         setTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +102,10 @@ public class AddAlram extends AppCompatActivity {
                 intent.putExtra("destinationLocateLng", desLocateLng);
                 intent.putExtra("destinationPlaceId", destinationPlaceId);  // 도착지 plcae_id
                 intent.putExtra("destinationName", destinationName);        // 도착지 이름
+                intent.putExtra("arrivalTimeHour", arrivalTimeHour);        // 도착 시간
+                intent.putExtra("arrivalTimeMinute", arrivalTimeMinute);    // 도착 분
+                intent.putExtra("alramDay", alramDay);      // 알람 요일
+                intent.putExtra("preAlram", preAlram);      // 미리 알림 시간
                 startActivity(intent);
             }
         });

@@ -45,22 +45,28 @@
         </activity>
 
         <activity android:name=".AddAlram">
-
         </activity>
+
         <activity android:name=".LocatePicker">
-
         </activity>
+
         <activity android:name=".RoutePicker">
-
         </activity>
-        <activity android:name=".SetTimePicker">
 
+        <activity android:name=".SetTimePicker">
         </activity>
 
         <activity android:name=".InstantAlram"
             android:theme="@android:style/Theme.Dialog">
-
         </activity>
+
+        <!-- 브로드캐스트 리시버 등록 -->
+        <receiver android:name=".AlramReceiver">
+            <intent-filter>
+                <action android:name="org.daelimie.test.daelimie.TEST">
+                </action></intent-filter>
+        </receiver>
+
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data

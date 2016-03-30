@@ -26,5 +26,5 @@ public interface GoogleMapsCom {
             @Query("language") String language,
             @Query("transit_routing_preference") String transit_routing_preference,
             @Query("transit_mode") String transit_mode,
-            @Query("departure_time") String departure_time);
+            @Query("arrival_time") String departure_time);
 }

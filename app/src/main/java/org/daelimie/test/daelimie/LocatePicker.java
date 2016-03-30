@@ -76,9 +76,11 @@ public class LocatePicker extends AppCompatActivity {
         Bundle bundle = intent.getExtras();
         BUTTON_FLAG = bundle.getString("BUTTON_FLAG");
 
+        // 툴바 생성
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // 구글 맵 생성
         initGoogleMap();
 
 
