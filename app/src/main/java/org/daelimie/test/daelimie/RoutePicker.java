@@ -1,8 +1,5 @@
 package org.daelimie.test.daelimie;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -144,7 +141,7 @@ public class RoutePicker extends AppCompatActivity {
             public void onClick(View view) {
 
                 // 알람 설정 테스트
-                setAlarm(RoutePicker.this, departureTimeHour, departureTimeMinute, 30, "org.daelimie.test.daelimie.TEST");
+                AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, departureTimeHour, departureTimeMinute, 30, "org.daelimie.test.daelimie.TEST");
                 //setAlarm(RoutePicker.this, 1000, "org.daelimie.test.daelimie.TEST");
 
                 // 알람 팝업 테스트
@@ -157,6 +154,7 @@ public class RoutePicker extends AppCompatActivity {
          * 리사이클러 뷰
          **************/
         try {
+            // TODO RouteAdapter 생성후 바꿔야함
             String testData = "[{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
                     ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
                     ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
@@ -314,6 +312,7 @@ public class RoutePicker extends AppCompatActivity {
 
                         // 출발 시간 저장
                         long getTime = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONObject("departure_time").getLong("value") * 1000; // 초는 포함되지 않기 때문에 1000 곱함
+                        getTime = getTime + preAlram * 60 * 1000; // 미리 알림 시간 포함
                         Date depDate = new Date(getTime); // 출발 시간
                         departureTimeHour = depDate.getHours();
                         departureTimeMinute = depDate.getMinutes();
@@ -440,44 +439,6 @@ public class RoutePicker extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    /***************
-     * 알람 등록
-     * @param context
-     * @param mHour
-     * @param mMinute
-     * @param mSecond
-     * @param INTENT_ACTION
-     ***************/
-    private void setAlarm(Context context, int mHour, int mMinute, int mSecond, String INTENT_ACTION){
-        Log.i(TAG, "set time : "+mHour+"/"+mMinute);
-        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
-        Intent Intent = new Intent(INTENT_ACTION);
-        PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, Intent, 0);
-
-        alarmManager.cancel(pIntent);
-        Calendar settingTime = Calendar.getInstance();
-        settingTime.set(Calendar.HOUR_OF_DAY, mHour);
-        settingTime.set(Calendar.MINUTE, mMinute);
-        settingTime.set(Calendar.SECOND, mSecond);
-        // TODO 출발 시간 받아옴
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, settingTime.getTimeInMillis(), 10 * 1000, pIntent);
-        //alarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + second, 3600 * 24 * 1000, pIntent);
-    }
-
-    /***************
-     * 알람 해제
-     * @param context
-     ***************/
-    private void releaseAlarm(Context context, String INTENT_ACTION){
-        Log.i(TAG, "releaseAlarm()");
-        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
-        Intent Intent = new Intent(INTENT_ACTION);
-        PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, Intent, 0);
-        alarmManager.cancel(pIntent);
     }
 
     /******************

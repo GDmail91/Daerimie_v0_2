@@ -28,7 +28,7 @@ public class TMapRoute {
 
     private TMapRoute() {}
 
-    public void searchRoute(String appKey, String departureName, LatLng departureLocate, String destinationName, LatLng destinationLocate, MyCallback callback) {
+    protected void searchRoute(String appKey, String departureName, LatLng departureLocate, String destinationName, LatLng destinationLocate, MyCallback callback) {
 
         this.mCallback = callback;
 
