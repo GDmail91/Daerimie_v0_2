@@ -68,19 +68,8 @@ public class RoutePicker extends AppCompatActivity {
     private Boolean isSetMarker = false;
 
     // 선택된 경로 정보
-    private LatLng departureLocate; // 출발지 위도,경도
-    private String departurePlaceId; // 출발지 지역 정보
-    private String departureName; // 출발지 이름
-    private LatLng destinationLocate; //도착지 위도, 경도
-    private String destinationPlaceId; //도착지 지역 정보
-    private String destinationName; // 도착지 이름
-    private String arrivalTime; // 도착하고 싶은 시간
-    private int arrivalTimeHour; // 도착하고 싶은 시간
-    private int arrivalTimeMinute; // 도착하고 싶은 분
+    private DTOAlarmValues mAlarmValue;
     private boolean[] alramDay; // 알림 받을 요일
-    private int preAlram; // 출발전 미리알림 시간
-    private int departureTimeHour; // 출발 예상 시간
-    private int departureTimeMinute; // 출발 예산 분
 
     private SlidingUpPanelLayout mLayout;
 
@@ -101,20 +90,9 @@ public class RoutePicker extends AppCompatActivity {
         // 전달받은 데이터 받음 (출발지, 도착지, 도착시간)
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        Double departureLocateLat = bundle.getDouble("departureLocateLat");
-        Double departureLocateLng = bundle.getDouble("departureLocateLng");
-        departureLocate = new LatLng(departureLocateLat, departureLocateLng);
-        departurePlaceId = bundle.getString("departurePlaceId");
-        departureName = bundle.getString("departureName");
-        Double destinationLocateLat = bundle.getDouble("destinationLocateLat");
-        Double destinationLocateLng = bundle.getDouble("destinationLocateLng");
-        destinationLocate = new LatLng(destinationLocateLat, destinationLocateLng);
-        destinationPlaceId = bundle.getString("destinationPlaceId");
-        destinationName = bundle.getString("destinationName");
-        arrivalTimeHour = bundle.getInt("arrivalTimeHour");
-        arrivalTimeMinute = bundle.getInt("arrivalTimeMinute");
+
+        mAlarmValue = (DTOAlarmValues) bundle.getSerializable("mAlarmValues");
         alramDay = bundle.getBooleanArray("alramDay");
-        preAlram = bundle.getInt("preAlram");
 
         // 툴바 생성
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -141,7 +119,7 @@ public class RoutePicker extends AppCompatActivity {
             public void onClick(View view) {
 
                 // 알람 설정 테스트
-                AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, departureTimeHour, departureTimeMinute, 30, "org.daelimie.test.daelimie.TEST");
+                AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 30, "org.daelimie.test.daelimie.TEST");
                 //setAlarm(RoutePicker.this, 1000, "org.daelimie.test.daelimie.TEST");
 
                 // 알람 팝업 테스트
@@ -242,9 +220,9 @@ public class RoutePicker extends AppCompatActivity {
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.route_map))
                 .getMap(); // 맵 가져옴
 
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(departureLocate, 15)); // Zoom 단계 설정
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(mAlarmValue.getDepartureLocate(), 15)); // Zoom 단계 설정
         // 길 정보 생성
-        route_info(departureLocate, destinationLocate, departurePlaceId, destinationPlaceId);
+        route_info(mAlarmValue.getDepartureLocate(), mAlarmValue.getDestinationLocate(), mAlarmValue.getDeparturePlaceId(), mAlarmValue.getDestinationPlaceId());
 
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -275,8 +253,8 @@ public class RoutePicker extends AppCompatActivity {
         GoogleMapsCom service = retrofit.create(GoogleMapsCom.class);
 
         Calendar settingTime = Calendar.getInstance();
-        settingTime.set(Calendar.HOUR_OF_DAY, arrivalTimeHour);
-        settingTime.set(Calendar.MINUTE, arrivalTimeMinute);
+        settingTime.set(Calendar.HOUR_OF_DAY, mAlarmValue.getArrivalTimeHour());
+        settingTime.set(Calendar.MINUTE, mAlarmValue.getArrivalTimeMinute());
         Log.d("Time Test", ""+settingTime.getTimeInMillis()/1000);
 
         Call<LinkedHashMap> res = service.getDirections(
@@ -312,10 +290,9 @@ public class RoutePicker extends AppCompatActivity {
 
                         // 출발 시간 저장
                         long getTime = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONObject("departure_time").getLong("value") * 1000; // 초는 포함되지 않기 때문에 1000 곱함
-                        getTime = getTime + preAlram * 60 * 1000; // 미리 알림 시간 포함
+                        getTime = getTime + mAlarmValue.getPreAlram() * 60 * 1000; // 미리 알림 시간 포함
                         Date depDate = new Date(getTime); // 출발 시간
-                        departureTimeHour = depDate.getHours();
-                        departureTimeMinute = depDate.getMinutes();
+                        mAlarmValue.setDepartureTime(depDate.getHours(), depDate.getMinutes());
 
                         // 지도에 그릴 Polyline
                         PolylineOptions polylineOptions = new PolylineOptions();
@@ -330,7 +307,7 @@ public class RoutePicker extends AppCompatActivity {
                                         List<LatLng> poly = PolyUtil.decode(walkStep.getJSONObject(j).getJSONObject("polyline").getString("points"));
 
                                         // T Map 에서 도보 길찾기 정보 가져옴
-                                        // TODO 길 모양 이쁘게 나오도록 수정
+                                        // TODO 길 모양 이쁘게 나오도록 수정은 했으나 블루라인과 레드라인이 안어올림
                                         TMapRoute.mTMapRoute.searchRoute(
                                                 getString(R.string.T_API_KEY),
                                                 "도보로 걷기", // 시작위치 이름
@@ -340,7 +317,10 @@ public class RoutePicker extends AppCompatActivity {
                                                 new MyCallback() { // Data 콜백
                                                     @Override
                                                     public void httpProcessing(JSONObject result) {
-                                                        markingMap(result); // 지도에 마크하기
+                                                        PolylineOptions walkPolylineOptions = new PolylineOptions();
+                                                        markingMap(result, walkPolylineOptions); // 지도에 마크하기
+
+                                                        map.addPolyline(walkPolylineOptions);
                                                     }
                                                 });
                                     }
@@ -385,7 +365,7 @@ public class RoutePicker extends AppCompatActivity {
     }
 
     // 지도에 마크하기
-    protected void markingMap(JSONObject result) {
+    protected void markingMap(JSONObject result, PolylineOptions polylineOptions) {
         try {
             JSONObject tmapData = result;
             JSONArray features = tmapData.getJSONArray("features");
@@ -422,16 +402,12 @@ public class RoutePicker extends AppCompatActivity {
                             walkingPoly.add(new LatLng(walkLat, walkLng));
                         }
 
-                        // 지도에 그릴 Polyline
-                        PolylineOptions polylineOptions = new PolylineOptions();
+                        // 지도에 그릴 Polyline 에 추가
                         for (int l=0; l<walkingPoly.size(); l++) {
                             polylineOptions.add(walkingPoly.get(l))
                                     .width(25)
                                     .color(Color.RED);
                         }
-
-                        map.addPolyline(polylineOptions);
-
                         break;
                 }
 
