@@ -11,9 +11,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView m_ListView;    // 알림 리스트 띄우기 위한 뷰
     private AlramAdapter m_ListAdapter;    // 알림 리스트 가져올 어댑터
+    private ArrayList<Integer> _ids = new ArrayList<>();
 
 
     @Override
@@ -48,34 +51,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        getButtonTitle();
+        getAlarmTitle();
     }
 
-    // 버튼 목록 얻어오는 함수
-    private void getButtonTitle() {
+    // 알림 목록 얻어오는 함수
+    private void getAlarmTitle() {
         try {
-            String testData = "[{ departure: 럭키아파트, destination: 남서울대학교 }, { departure: 럭키아파트, destination: 남서울대학교 }, { departure: 럭키아파트, destination: 남서울대학교 }]";
-            JSONArray data = new JSONArray(testData);
-Log.d("JSON: ", data.toString());
-            ArrayList<String> tmp_List = new ArrayList<String>();
-            ArrayList<String> tmp_Mac = new ArrayList<String>();
-            ArrayList<Integer> tmp_Fid = new ArrayList<Integer>();
+            DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
 
-            for (int i = 0; i < data.length(); i++) {
-                // List 어댑터에 전달할 값들
-                tmp_List.add(data.getJSONObject(i).getString("departure"));
-                tmp_Mac.add(data.getJSONObject(i).getString("destination"));
+            ArrayList<JSONObject> allData = dbManager.getAllData();
+            JSONArray data = new JSONArray();
+
+            ArrayList<String> tmp_dep = new ArrayList<String>();
+            ArrayList<String> tmp_des = new ArrayList<String>();
+            ArrayList<String> tmp_depTime = new ArrayList<String>();
+            ArrayList<String> tmp_desTime = new ArrayList<String>();
+
+            if (allData.size() != 0) {
+                for (int i = 0; i < allData.size(); i++) {
+                    data.put(allData.get(i));
+                }
+
+                Log.d("JSON: ", data.toString());
+
+                for (int i = 0; i < data.length(); i++) {
+                    // List 어댑터에 전달할 값들
+                    tmp_dep.add(data.getJSONObject(i).getString("departureName"));
+                    tmp_des.add(data.getJSONObject(i).getString("destinationName"));
+                    tmp_depTime.add(data.getJSONObject(i).getString("departureTimeHour") + ":" + data.getJSONObject(i).getString("departureTimeMinute"));
+                    tmp_desTime.add(data.getJSONObject(i).getString("arrivalTimeHour") + ":" + data.getJSONObject(i).getString("arrivalTimeMinute"));
+                    _ids.add(data.getJSONObject(i).getInt("_id"));
+
+                }
+                // ListView 생성하면서 작성할 값 초기화
+                m_ListAdapter = new AlramAdapter(_ids, tmp_dep, tmp_des, tmp_depTime, tmp_desTime);
+
+                // ListView 어댑터 연결
+                m_ListView = (ListView) findViewById(R.id.myRouteList);
+                m_ListView.setAdapter(m_ListAdapter);
+            } else {
+                TextView noitem = (TextView) findViewById(R.id.noitem);
+                noitem.setVisibility(View.VISIBLE);
             }
-
-            // ListView 생성하면서 작성할 값 초기화
-            m_ListAdapter = new AlramAdapter(tmp_List, tmp_Mac);
-
-
-
-            // ListView 어댑터 연결
-            m_ListView = (ListView) findViewById(R.id.myRouteList);
-            m_ListView.setAdapter(m_ListAdapter);
-            //m_ListView.setOnItemClickListener(onClickListItem);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,7 +123,14 @@ Log.d("JSON: ", data.toString());
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.all_delete) {
+            DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
+
+            dbManager.deleteAll();
+
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
             return true;
         }
 

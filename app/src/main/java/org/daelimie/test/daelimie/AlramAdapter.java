@@ -1,10 +1,13 @@
 package org.daelimie.test.daelimie;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -14,12 +17,18 @@ import java.util.ArrayList;
  */
 public class AlramAdapter extends BaseAdapter {
     private static final String TAG = "ButtonAdapter";
+    private ArrayList<Integer> ids;
     private ArrayList<String> m_dep;
     private ArrayList<String> m_des;
+    private ArrayList<String> m_depTime;
+    private ArrayList<String> m_desTime;
 
-    public AlramAdapter(ArrayList<String> m_List, ArrayList<String> m_Mac) {
-        this.m_dep = m_List;
-        this.m_des = m_Mac;
+    public AlramAdapter(ArrayList<Integer> ids, ArrayList<String> m_dep, ArrayList<String> m_des, ArrayList<String> m_depTime, ArrayList<String> m_desTime) {
+        this.ids = ids;
+        this.m_dep = m_dep;
+        this.m_des = m_des;
+        this.m_depTime = m_depTime;
+        this.m_desTime = m_desTime;
     }
 
 
@@ -43,7 +52,7 @@ public class AlramAdapter extends BaseAdapter {
 
     // 출력 될 아이템 관리
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         final int pos = position;
         final Context context = parent.getContext();
 
@@ -60,6 +69,14 @@ public class AlramAdapter extends BaseAdapter {
 
             holder.dep_locate = (TextView) view.findViewById(R.id.dep_locate);
             holder.des_locate = (TextView) view.findViewById(R.id.des_locate);
+            holder.dep_time = (TextView) view.findViewById(R.id.dep_time);
+            holder.des_time = (TextView) view.findViewById(R.id.des_time);
+            holder.edit_button = (Button) view.findViewById(R.id.edit_button);
+
+            Log.d(TAG, "ids 길이:"+ids.size());
+            if (ids.size() == 0) {
+                holder.edit_button.setVisibility(View.INVISIBLE);
+            }
 
             view.setTag(holder);
         } else {
@@ -73,17 +90,21 @@ public class AlramAdapter extends BaseAdapter {
         // TextView에 현재 position의 문자열 추가
         holder.dep_locate.setText(m_dep.get(position));
         holder.des_locate.setText(m_des.get(position));
-/*
-        // 버튼을 터치 했을 때 이벤트 발생
-        holder.btn_test.setOnClickListener(new View.OnClickListener() {
+        holder.dep_time.setText(m_depTime.get(position));
+        holder.des_time.setText(m_desTime.get(position));
+
+        // 수정 버튼을 터치 했을 때 이벤트 발생
+        holder.edit_button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                // 터치 시 해당 아이템 이름 출력
-                Toast.makeText(context, "리스트 클릭 : " + m_dep.get(pos) + "\n MAC_ADDR: " + m_des.get(pos), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, EditAlarm.class);
+                intent.putExtra("ids", ids.get(pos));
+
+                context.startActivity(intent);
             }
         });
-
+/*
         // 리스트 아이템을 터치 했을 때 이벤트 발생
         view.setOnClickListener(new View.OnClickListener() {
 
@@ -155,6 +176,9 @@ public class AlramAdapter extends BaseAdapter {
     static class ViewHolder {
         TextView dep_locate;
         TextView des_locate;
+        TextView dep_time;
+        TextView des_time;
+        Button edit_button;
     }
 
     // 외부에서 아이템 추가 요청 시 사용

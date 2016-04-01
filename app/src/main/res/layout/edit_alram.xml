@@ -142,7 +142,7 @@
                     android:layout_weight="3"
                     android:layout_gravity="center"
                     android:gravity="right"
-                    android:text="00"
+                    android:text="06"
                     android:textSize="30sp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
@@ -162,7 +162,7 @@
                     android:layout_weight="2"
                     android:layout_gravity="center"
                     android:gravity="left"
-                    android:text="00"
+                    android:text="30"
                     android:textSize="30sp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
@@ -193,16 +193,37 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/addRouteButton"
-        android:padding="0dp"
-        android:text="경로 추가"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:background="@color/colorOrange"
+        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:weightSum="10">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/deleteRouteButton"
+            android:padding="0dp"
+            android:layout_weight="5"
+            android:text="경로 삭제"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:background="@color/colorRed"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/addRouteButton"
+            android:padding="0dp"
+            android:layout_weight="5"
+            android:text="경로 추가"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:background="@color/colorOrange" />
+    </LinearLayout>
 </RelativeLayout>

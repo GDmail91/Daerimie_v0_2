@@ -65,8 +65,8 @@ public class DTOAlarmValues implements Serializable {
         this.departureTimeMinute = departureTimeMinute;
     }
 
-    public void setAlarmInfo(int preAlram) {
-        this.preAlram = preAlram;
+    public void setAlarmInfo(int preAlarm) {
+        this.preAlram = preAlarm;
     }
 
     public LatLng getDepartureLocate() {

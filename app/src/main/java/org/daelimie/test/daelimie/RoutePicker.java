@@ -70,8 +70,10 @@ public class RoutePicker extends AppCompatActivity {
     // 선택된 경로 정보
     private DTOAlarmValues mAlarmValue;
     private boolean[] alramDay; // 알림 받을 요일
+    private int ids = 0;
 
     private SlidingUpPanelLayout mLayout;
+    private Button addRouteButton;
 
     // 구글 플레이스 관련
     private int PLACE_PICKER_REQUEST = 1;
@@ -93,6 +95,7 @@ public class RoutePicker extends AppCompatActivity {
 
         mAlarmValue = (DTOAlarmValues) bundle.getSerializable("mAlarmValues");
         alramDay = bundle.getBooleanArray("alramDay");
+        ids = bundle.getInt("ids");
 
         // 툴바 생성
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -113,18 +116,36 @@ public class RoutePicker extends AppCompatActivity {
         });
 
         // 경로 선택 완료
-        Button addRouteButton = (Button) findViewById(R.id.addRouteButton);
+        addRouteButton = (Button) findViewById(R.id.addRouteButton);
         addRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                setMyButtonDisable(addRouteButton);
+
+                // DB에 저장
+                final DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
+                Log.d(TAG, convertBooleanToString(alramDay));
+                boolean[] test = convertStringToBoolean(convertBooleanToString(alramDay));
+
+                if (ids != 0) {
+                    dbManager.insert(mAlarmValue, convertBooleanToString(alramDay), ids);
+                } else {
+                    dbManager.insert(mAlarmValue, convertBooleanToString(alramDay));
+                }
+                Log.d(TAG, String.valueOf(dbManager.printCountOfData()));
+
+
+                Intent intent = new Intent(RoutePicker.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
 
                 // 알람 설정 테스트
                 AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 30, "org.daelimie.test.daelimie.TEST");
                 //setAlarm(RoutePicker.this, 1000, "org.daelimie.test.daelimie.TEST");
 
-                // 알람 팝업 테스트
-                /*Intent intent = new Intent(RoutePicker.this, InstantAlram.class);
-                startActivity(intent);*/
+                setMyButtonEnable(addRouteButton);
             }
         });
 
@@ -255,7 +276,7 @@ public class RoutePicker extends AppCompatActivity {
         Calendar settingTime = Calendar.getInstance();
         settingTime.set(Calendar.HOUR_OF_DAY, mAlarmValue.getArrivalTimeHour());
         settingTime.set(Calendar.MINUTE, mAlarmValue.getArrivalTimeMinute());
-        Log.d("Time Test", ""+settingTime.getTimeInMillis()/1000);
+        Log.d("Time Test", "" + settingTime.getTimeInMillis() / 1000);
 
         Call<LinkedHashMap> res = service.getDirections(
                 getString(R.string.WEB_API_KEY),
@@ -329,7 +350,7 @@ public class RoutePicker extends AppCompatActivity {
                                     JSONObject detailTransit = eachRoutesSteps.getJSONObject(i).getJSONObject("transit_details");
                                     // 교통수단 길안내
                                     List<LatLng> tranPoly = PolyUtil.decode(eachRoutesSteps.getJSONObject(i).getJSONObject("polyline").getString("points"));
-                                    for (int j=0; j<tranPoly.size(); j++) {
+                                    for (int j = 0; j < tranPoly.size(); j++) {
                                         polylineOptions.add(tranPoly.get(j))
                                                 .width(25)
                                                 .color(Color.BLUE);
@@ -468,5 +489,44 @@ public class RoutePicker extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    /***************
+     * boolean 배열 컨버터
+     * @param convertString
+     * @return boolean[]
+     ***************/
+    private boolean[] convertStringToBoolean(String convertString) {
+        String[] parts = convertString.split(" ");
+
+        boolean[] array = new boolean[parts.length];
+        for (int i = 0; i < parts.length; i++)
+            array[i] = Boolean.parseBoolean(parts[i]);
+
+        return array;
+    }
+
+    /***************
+     * boolean 배열 컨버터
+     * @param boolArray
+     * @return boolean[]
+     ***************/
+    private String convertBooleanToString(boolean[] boolArray) {
+        String convertedString= "";
+        for (int i = 0;i<boolArray.length; i++) {
+            convertedString = convertedString + boolArray[i];
+            // Do not append comma at the end of last element
+            if(i<boolArray.length - 1){
+                convertedString = convertedString+" ";
+            }}
+        return convertedString;
+    }
+
+    private void setMyButtonEnable(Button button) {
+        button.setEnabled(true);
+    }
+
+    private void setMyButtonDisable(Button button) {
+        button.setEnabled(false);
     }
 }

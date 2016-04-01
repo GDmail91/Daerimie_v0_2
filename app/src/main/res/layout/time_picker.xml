@@ -20,7 +20,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09"
+                android:text="00"
                 android:textSize="60dp"
                 android:id="@+id/arrival_time_hour"/>
             <TextView
@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="30"
+                android:text="00"
                 android:textSize="60dp"
                 android:id="@+id/arrival_time_minute"/>
             <TextView

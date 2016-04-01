@@ -19,15 +19,15 @@ public class AddAlram extends AppCompatActivity {
     private static final String TAG = "AddAlram";
 
     // 선택된 지역 정보
-    private DTOAlarmValues mAlarmValues = new DTOAlarmValues();
-    private boolean[] alramDay;
+    protected DTOAlarmValues mAlarmValues = new DTOAlarmValues();
+    protected boolean[] alramDay = new boolean[] {false, false, false, false, false, false, false}; // 알림 받을 요일 [0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일]
 
     // 뷰
-    private TextView departureNameView;
-    private TextView destinationNameView;
-    private TextView arrivalTimeHourView;
-    private TextView arrivalTimeMinuteView;
-    private TextView ampm;
+    protected TextView departureNameView;
+    protected TextView destinationNameView;
+    protected TextView arrivalTimeHourView;
+    protected TextView arrivalTimeMinuteView;
+    protected TextView ampm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +80,15 @@ public class AddAlram extends AppCompatActivity {
         addRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(AddAlram.this, RoutePicker.class);
-                // 인텐트 추가
-                intent.putExtra("mAlarmValues", mAlarmValues);
-                intent.putExtra("alramDay", alramDay);
-                startActivity(intent);
+                // 값을 다 넣었을 경우만 실행
+                if (mAlarmValues.getDepartureName() != null
+                || mAlarmValues.getDestinationName() != null){
+                    Intent intent = new Intent(AddAlram.this, RoutePicker.class);
+                    // 인텐트 추가
+                    intent.putExtra("mAlarmValues", mAlarmValues);
+                    intent.putExtra("alramDay", alramDay);
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -118,6 +122,7 @@ public class AddAlram extends AppCompatActivity {
                             intent.getIntExtra("preAlram", 0));
                     alramDay = intent.getBooleanArrayExtra("alramDay");
 
+                    // 시간 셋팅
                     if (mAlarmValues.getArrivalTimeHour() > 12) {
                         arrivalTimeHourView.setText(String.valueOf(mAlarmValues.getArrivalTimeHour()-12));
                         ampm.setText("pm");
@@ -129,6 +134,7 @@ public class AddAlram extends AppCompatActivity {
                         ampm.setText("am");
                     }
 
+                    // 분 셋팅
                     if (mAlarmValues.getArrivalTimeMinute() < 10) {
                         arrivalTimeMinuteView.setText("0"+String.valueOf(mAlarmValues.getArrivalTimeMinute()));
                     } else {

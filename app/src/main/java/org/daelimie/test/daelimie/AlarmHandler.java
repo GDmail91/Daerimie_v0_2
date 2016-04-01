@@ -39,7 +39,7 @@ public class AlarmHandler {
             settingTime.set(Calendar.MINUTE, mMinute);
             settingTime.set(Calendar.SECOND, mSecond);
             // TODO 반복 시간 24시간으로 바꿈
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, settingTime.getTimeInMillis(), 10 * 1000, pIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, settingTime.getTimeInMillis(), 3600 * 24 * 1000, pIntent);
             //alarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + second, 3600 * 24 * 1000, pIntent);
 
             return true;
@@ -69,6 +69,21 @@ public class AlarmHandler {
             e.printStackTrace();
             return false;
         }
+    }
+
+
+    /***************
+     * boolean 배열 컨버터
+     * @param convertString
+     ***************/
+    private boolean[] convertStringToBoolean(String convertString) {
+        String[] parts = convertString.split(" ");
+
+        boolean[] array = new boolean[parts.length];
+        for (int i = 0; i < parts.length; i++)
+            array[i] = Boolean.parseBoolean(parts[i]);
+
+        return array;
     }
 
 }

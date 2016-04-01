@@ -18,6 +18,17 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         >
+        <!--<RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/all_delete">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="전체삭제"
+                android:textColor="@color/white"/>
+        </RelativeLayout>-->
     </android.support.v7.widget.Toolbar>
 
 </LinearLayout>

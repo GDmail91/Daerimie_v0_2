@@ -47,6 +47,9 @@
         <activity android:name=".AddAlram">
         </activity>
 
+        <activity android:name=".EditAlarm">
+        </activity>
+
         <activity android:name=".LocatePicker">
         </activity>
 

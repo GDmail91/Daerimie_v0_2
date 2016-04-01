@@ -27,7 +27,8 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:text="06:30" />
+                android:text="--:--"
+                android:id="@+id/dep_time" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,7 +37,8 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:text="09:00" />
+                android:text="--:--"
+                android:id="@+id/des_time" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
@@ -56,14 +58,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:id="@+id/dep_locate"
-                        android:textSize="20sp"
-                        android:text="럭키아파트" />
+                        android:textSize="20sp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:id="@+id/des_locate"
-                        android:textSize="20sp"
-                        android:text="남서울대학교" />
+                        android:textSize="20sp" />
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
@@ -76,6 +76,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
+                    android:id="@+id/edit_button"
                     android:text="수정" />
                 <Button
                     android:layout_width="wrap_content"

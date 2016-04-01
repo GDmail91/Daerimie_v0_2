@@ -27,7 +27,7 @@ public class SetTimePicker extends AppCompatActivity {
     private String BUTTON_FLAG;
     private int arrivalTimeHour; // 도착하고 싶은 시간
     private int arrivalTimeMinute; // 도착하고 싶은 분
-    private boolean[] alramDay = new boolean[7]; // 알림 받을 요일 [0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일]
+    private boolean[] alramDay = new boolean[] {false, false, false, false, false, false, false}; // 알림 받을 요일 [0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일]
     private int preAlram = 10; // 출발전 미리알림 시간
 
     // 뷰
