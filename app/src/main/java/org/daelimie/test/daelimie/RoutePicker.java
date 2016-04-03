@@ -128,10 +128,11 @@ public class RoutePicker extends AppCompatActivity {
                 Log.d(TAG, convertBooleanToString(alramDay));
                 boolean[] test = convertStringToBoolean(convertBooleanToString(alramDay));
 
+                String alarmTAG;
                 if (ids != 0) {
-                    dbManager.insert(mAlarmValue, convertBooleanToString(alramDay), ids);
+                    alarmTAG = dbManager.update(mAlarmValue, convertBooleanToString(alramDay), ids);
                 } else {
-                    dbManager.insert(mAlarmValue, convertBooleanToString(alramDay));
+                    alarmTAG = dbManager.insert(mAlarmValue, convertBooleanToString(alramDay));
                 }
                 Log.d(TAG, String.valueOf(dbManager.printCountOfData()));
 
@@ -141,9 +142,8 @@ public class RoutePicker extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
 
-                // 알람 설정 테스트
-                AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 30, "org.daelimie.test.daelimie.TEST");
-                //setAlarm(RoutePicker.this, 1000, "org.daelimie.test.daelimie.TEST");
+                // 메인 알람 설정
+                AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 0, alarmTAG);
 
                 setMyButtonEnable(addRouteButton);
             }

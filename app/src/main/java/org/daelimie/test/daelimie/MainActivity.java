@@ -78,8 +78,22 @@ public class MainActivity extends AppCompatActivity {
                     // List 어댑터에 전달할 값들
                     tmp_dep.add(data.getJSONObject(i).getString("departureName"));
                     tmp_des.add(data.getJSONObject(i).getString("destinationName"));
-                    tmp_depTime.add(data.getJSONObject(i).getString("departureTimeHour") + ":" + data.getJSONObject(i).getString("departureTimeMinute"));
-                    tmp_desTime.add(data.getJSONObject(i).getString("arrivalTimeHour") + ":" + data.getJSONObject(i).getString("arrivalTimeMinute"));
+
+                    String tempDepMin, tempDesMin;
+                    // 출발 분 표시 정리
+                    if (Integer.valueOf(data.getJSONObject(i).getString("departureTimeMinute")) < 10) {
+                        tempDepMin = "0"+data.getJSONObject(i).getString("departureTimeMinute");
+                    } else {
+                        tempDepMin = data.getJSONObject(i).getString("departureTimeMinute");
+                    }
+                    // 도착 분 표시 정리
+                    if (Integer.valueOf(data.getJSONObject(i).getString("arrivalTimeMinute")) < 10) {
+                        tempDesMin = "0"+data.getJSONObject(i).getString("arrivalTimeMinute");
+                    } else {
+                        tempDesMin = data.getJSONObject(i).getString("arrivalTimeMinute");
+                    }
+                    tmp_depTime.add(data.getJSONObject(i).getString("departureTimeHour") + ":" + tempDepMin);
+                    tmp_desTime.add(data.getJSONObject(i).getString("arrivalTimeHour") + ":" + tempDesMin);
                     _ids.add(data.getJSONObject(i).getInt("_id"));
 
                 }

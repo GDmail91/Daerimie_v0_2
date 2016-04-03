@@ -221,7 +221,7 @@
             android:id="@+id/addRouteButton"
             android:padding="0dp"
             android:layout_weight="5"
-            android:text="경로 추가"
+            android:text="경로 변경"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:background="@color/colorOrange" />

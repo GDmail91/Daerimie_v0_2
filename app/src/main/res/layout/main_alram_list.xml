@@ -85,6 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="설정된 알림이 없습니다.\n새로운 경로를 찾아보세요!"
+            android:textSize="20sp"
             android:textAlignment="center"
             android:visibility="invisible"
             android:id="@+id/noitem"/>

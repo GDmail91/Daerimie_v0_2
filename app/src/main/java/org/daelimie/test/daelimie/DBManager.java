@@ -46,7 +46,7 @@ public class DBManager extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    public void insert(DTOAlarmValues mAlarmValues,
+    public String insert(DTOAlarmValues mAlarmValues,
                        String alarmDay) {
         SQLiteDatabase dbR = getReadableDatabase();
         int topNumber = 0;
@@ -61,6 +61,7 @@ public class DBManager extends SQLiteOpenHelper {
             topNumber = 1;
         }
 
+        String alarmTAG = "org.daelimie.test.daelimie.Alarm" + (topNumber+1);
         String sql = "INSERT INTO AlarmList VALUES(" +
                 "'" + (topNumber+1) + "', " +
                 "'" + mAlarmValues.getDepartureName() + "', " +
@@ -77,35 +78,40 @@ public class DBManager extends SQLiteOpenHelper {
                 "'" + mAlarmValues.getDepartureTimeMinute() + "', " +
                 "'" + mAlarmValues.getPreAlram() + "', " +
                 "'" + alarmDay + "', " +
-                "'org.daelimie.test.daelimie.Alarm" + (topNumber+1) + "');";
+                "'" + alarmTAG + "');";
         SQLiteDatabase dbW = getWritableDatabase();
         dbW.execSQL(sql);
         dbW.close();
+
+        return alarmTAG;
     }
 
-    public void insert(DTOAlarmValues mAlarmValues,
+    public String update(DTOAlarmValues mAlarmValues,
                        String alarmDay,
                        int ids) {
-        String sql = "UPDATE AlarmList SET VALUES(" +
-                "'" + ids + "', " +
-                "'" + mAlarmValues.getDepartureName() + "', " +
-                "'" + mAlarmValues.getDeparturePlaceId() + "', " +
-                "'" + mAlarmValues.getDepartureLocate().latitude + "', " +
-                "'" + mAlarmValues.getDepartureLocate().longitude + "', " +
-                "'" + mAlarmValues.getDestinationName() + "', " +
-                "'" + mAlarmValues.getDestinationPlaceId() + "', " +
-                "'" + mAlarmValues.getDestinationLocate().latitude + "', " +
-                "'" + mAlarmValues.getDestinationLocate().longitude + "', " +
-                "'" + mAlarmValues.getArrivalTimeHour() + "', " +
-                "'" + mAlarmValues.getArrivalTimeMinute() + "', " +
-                "'" + mAlarmValues.getDepartureTimeHour() + "', " +
-                "'" + mAlarmValues.getDepartureTimeMinute() + "', " +
-                "'" + mAlarmValues.getPreAlram() + "', " +
-                "'" + alarmDay + "', " +
-                "'org.daelimie.test.daelimie.Alarm" + ids + "');";
+        String alarmTAG = "org.daelimie.test.daelimie.Alarm" + ids;
+        String sql = "UPDATE AlarmList SET " +
+                "departureName='" + mAlarmValues.getDepartureName() + "', " +
+                "departurePlaceId='" + mAlarmValues.getDeparturePlaceId() + "', " +
+                "departureLocateLat='" + mAlarmValues.getDepartureLocate().latitude + "', " +
+                "departureLocateLng='" + mAlarmValues.getDepartureLocate().longitude + "', " +
+                "destinationName='" + mAlarmValues.getDestinationName() + "', " +
+                "destinationPlaceId='" + mAlarmValues.getDestinationPlaceId() + "', " +
+                "destinationLocateLat='" + mAlarmValues.getDestinationLocate().latitude + "', " +
+                "destinationLocateLng='" + mAlarmValues.getDestinationLocate().longitude + "', " +
+                "arrivalTimeHour='" + mAlarmValues.getArrivalTimeHour() + "', " +
+                "arrivalTimeMinute='" + mAlarmValues.getArrivalTimeMinute() + "', " +
+                "departureTimeHour='" + mAlarmValues.getDepartureTimeHour() + "', " +
+                "departureTimeMinute='" + mAlarmValues.getDepartureTimeMinute() + "', " +
+                "preAlarm='" + mAlarmValues.getPreAlram() + "', " +
+                "alarmDay='" + alarmDay + "'" +
+                "WHERE _id='"+ids+"' ;";
+
         SQLiteDatabase dbW = getWritableDatabase();
         dbW.execSQL(sql);
         dbW.close();
+
+        return alarmTAG;
     }
 
     public void update(String _query) {
