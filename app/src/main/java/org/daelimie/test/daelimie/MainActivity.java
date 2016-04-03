@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // 클릭키를 추가할 버튼정의
+        // 경로 추가 버튼 정의
         Button addBtn = (Button) findViewById(R.id.addRouteButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             dbManager.deleteAll();
 
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             return true;
         }

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,14 +41,21 @@ public class DBManager extends SQLiteOpenHelper {
                 "preAlarm INTEGER, " +
                 "alarmDay TEXT, " +
                 "_tag TEXT);");
+
+        db.execSQL("CREATE TABLE RouteInfo (" +
+                "_alarm_id INTEGER PRIMARY KEY, " +
+                "routeInfo TEXT);");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS dic");
+        onCreate(db);
     }
 
     public String insert(DTOAlarmValues mAlarmValues,
-                       String alarmDay) {
+                         String alarmDay,
+                         String routeInfo) {
         SQLiteDatabase dbR = getReadableDatabase();
         int topNumber = 0;
 
@@ -79,16 +87,26 @@ public class DBManager extends SQLiteOpenHelper {
                 "'" + mAlarmValues.getPreAlram() + "', " +
                 "'" + alarmDay + "', " +
                 "'" + alarmTAG + "');";
+        String sqlForRoute = "INSERT INTO RouteInfo VALUES(" +
+                "'" + (topNumber+1) + "', " +
+                "'" + routeInfo + "');";
+
+        // DB 작업 실행
         SQLiteDatabase dbW = getWritableDatabase();
+        dbW.beginTransaction();
         dbW.execSQL(sql);
+        dbW.execSQL(sqlForRoute);
+        dbW.setTransactionSuccessful();
+        dbW.endTransaction();
         dbW.close();
 
         return alarmTAG;
     }
 
     public String update(DTOAlarmValues mAlarmValues,
-                       String alarmDay,
-                       int ids) {
+                         String alarmDay,
+                         String routeInfo,
+                         int ids) {
         String alarmTAG = "org.daelimie.test.daelimie.Alarm" + ids;
         String sql = "UPDATE AlarmList SET " +
                 "departureName='" + mAlarmValues.getDepartureName() + "', " +
@@ -106,9 +124,17 @@ public class DBManager extends SQLiteOpenHelper {
                 "preAlarm='" + mAlarmValues.getPreAlram() + "', " +
                 "alarmDay='" + alarmDay + "'" +
                 "WHERE _id='"+ids+"' ;";
+        String sqlForRoute = "UPDATE RouteInfo SET" +
+                "routeInfo='" + routeInfo + "' " +
+                "WHERE _alarm_id='"+ids+"' ;";
 
+        // DB 작업 실행
         SQLiteDatabase dbW = getWritableDatabase();
+        dbW.beginTransaction();
         dbW.execSQL(sql);
+        dbW.execSQL(sqlForRoute);
+        dbW.setTransactionSuccessful();
+        dbW.endTransaction();
         dbW.close();
 
         return alarmTAG;
@@ -201,6 +227,23 @@ public class DBManager extends SQLiteOpenHelper {
                 tempData.put("preAlarm", cursor.getInt(13));
                 tempData.put("alarmDay", cursor.getString(14));
                 tempData.put("_tag", cursor.getString(15));
+
+                data = tempData;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+    public JSONArray getRoute(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        JSONArray data = new JSONArray();
+        try {
+            Cursor cursor = db.rawQuery("SELECT routeInfo FROM RouteInfo WHERE _alarm_id='"+id+"'", null);
+            while(cursor.moveToNext()) {
+                JSONArray tempData = new JSONArray(cursor.getString(0));
 
                 data = tempData;
             }

@@ -10,6 +10,11 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -72,6 +77,7 @@ public class AlramAdapter extends BaseAdapter {
             holder.dep_time = (TextView) view.findViewById(R.id.dep_time);
             holder.des_time = (TextView) view.findViewById(R.id.des_time);
             holder.edit_button = (Button) view.findViewById(R.id.edit_button);
+            holder.show_route_button = (Button) view.findViewById(R.id.show_route_button);
 
             Log.d(TAG, "ids 길이:"+ids.size());
             if (ids.size() == 0) {
@@ -102,6 +108,45 @@ public class AlramAdapter extends BaseAdapter {
                 intent.putExtra("ids", ids.get(pos));
 
                 context.startActivity(intent);
+            }
+        });
+
+        // 경로보기 버튼을 터치 했을 때 이벤트 발생
+        holder.show_route_button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                DBManager dbManager = new DBManager(context.getApplicationContext(), "Alarm.db", null, 1);
+
+                try {
+                    DTOAlarmValues mAlarmValues = new DTOAlarmValues();
+                    JSONObject data = dbManager.getData(ids.get(pos));
+                    mAlarmValues.setDeparture(
+                            new LatLng(data.getDouble("departureLocateLat"), data.getDouble("departureLocateLng")),
+                            data.getString("departurePlaceId"),
+                            data.getString("departureName"));
+                    mAlarmValues.setDestination(
+                            new LatLng(data.getDouble("destinationLocateLat"), data.getDouble("destinationLocateLng")),
+                            data.getString("destinationPlaceId"),
+                            data.getString("destinationName"));
+                    mAlarmValues.setArrivalTime(
+                            data.getInt("arrivalTimeHour"),
+                            data.getInt("arrivalTimeMinute"));
+                    mAlarmValues.setDepartureTime(
+                            data.getInt("departureTimeHour"),
+                            data.getInt("departureTimeMinute"));
+                    mAlarmValues.setAlarmInfo(
+                            data.getInt("preAlarm"));
+
+                    Intent intent = new Intent(context, RoutePicker.class);
+                    intent.putExtra("mAlarmValues", mAlarmValues);
+                    intent.putExtra("ids", ids.get(pos));
+                    intent.putExtra("ACTION_FLAG", 2);
+
+                    context.startActivity(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 /*
@@ -179,6 +224,7 @@ public class AlramAdapter extends BaseAdapter {
         TextView dep_time;
         TextView des_time;
         Button edit_button;
+        Button show_route_button;
     }
 
     // 외부에서 아이템 추가 요청 시 사용

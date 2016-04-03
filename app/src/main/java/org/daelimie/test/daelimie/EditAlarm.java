@@ -128,6 +128,7 @@ public class EditAlarm extends AddAlram {
                 intent.putExtra("mAlarmValues", mAlarmValues);
                 intent.putExtra("alramDay", alramDay);
                 intent.putExtra("ids", ids);
+                intent.putExtra("ACTION_FLAG", 1);
                 startActivity(intent);
             }
         });

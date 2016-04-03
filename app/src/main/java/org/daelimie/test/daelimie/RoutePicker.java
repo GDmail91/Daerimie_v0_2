@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -71,6 +72,7 @@ public class RoutePicker extends AppCompatActivity {
     private DTOAlarmValues mAlarmValue;
     private boolean[] alramDay; // 알림 받을 요일
     private int ids = 0;
+    private String routeInfo;
 
     private SlidingUpPanelLayout mLayout;
     private Button addRouteButton;
@@ -89,6 +91,8 @@ public class RoutePicker extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.route_picker);
 
+        addRouteButton = (Button) findViewById(R.id.addRouteButton);
+
         // 전달받은 데이터 받음 (출발지, 도착지, 도착시간)
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -96,6 +100,7 @@ public class RoutePicker extends AppCompatActivity {
         mAlarmValue = (DTOAlarmValues) bundle.getSerializable("mAlarmValues");
         alramDay = bundle.getBooleanArray("alramDay");
         ids = bundle.getInt("ids");
+        int ACTION_FLAG = bundle.getInt("ACTION_FLAG");
 
         // 툴바 생성
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -104,132 +109,163 @@ public class RoutePicker extends AppCompatActivity {
         // 구글 맵 생성
         initGoogleMap();
 
+        switch (ACTION_FLAG) {
+            /** 경로를 직접 찾는 경우 */
+            case 1:
+                top_route_name = (TextView) findViewById(R.id.top_route_name);
+                top_route_address = (TextView) findViewById(R.id.top_route_address);
+                ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+                searchButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //openAutocompleteActivity();
+                    }
+                });
 
-        top_route_name = (TextView) findViewById(R.id.top_route_name);
-        top_route_address = (TextView) findViewById(R.id.top_route_address);
-        ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //openAutocompleteActivity();
-            }
-        });
+                // 경로 선택 완료
+                addRouteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
-        // 경로 선택 완료
-        addRouteButton = (Button) findViewById(R.id.addRouteButton);
-        addRouteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                        setMyButtonDisable(addRouteButton);
 
-                setMyButtonDisable(addRouteButton);
+                        // DB에 저장
+                        final DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
+                        Log.d(TAG, convertBooleanToString(alramDay));
+                        boolean[] test = convertStringToBoolean(convertBooleanToString(alramDay));
 
-                // DB에 저장
-                final DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
-                Log.d(TAG, convertBooleanToString(alramDay));
-                boolean[] test = convertStringToBoolean(convertBooleanToString(alramDay));
+                        String alarmTAG;
+                        if (ids != 0) {
+                            alarmTAG = dbManager.update(mAlarmValue, convertBooleanToString(alramDay), routeInfo, ids);
+                        } else {
+                            alarmTAG = dbManager.insert(mAlarmValue, convertBooleanToString(alramDay), routeInfo);
+                        }
+                        Log.d(TAG, String.valueOf(dbManager.printCountOfData()));
 
-                String alarmTAG;
-                if (ids != 0) {
-                    alarmTAG = dbManager.update(mAlarmValue, convertBooleanToString(alramDay), ids);
-                } else {
-                    alarmTAG = dbManager.insert(mAlarmValue, convertBooleanToString(alramDay));
+
+                        Intent intent = new Intent(RoutePicker.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+
+                        // 메인 알람 설정
+                        AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 0, alarmTAG);
+
+                        setMyButtonEnable(addRouteButton);
+                    }
+                });
+
+                /**************
+                 * 리사이클러 뷰
+                 **************/
+                try {
+                    // TODO RouteAdapter 생성후 바꿔야함
+                    String testData = "[{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
+                            ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
+                            ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
+                            ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }]";
+                    JSONArray data = new JSONArray(testData);
+                    Log.d("JSON: ", data.toString());
+                    ArrayList<String> tmp_locate_name = new ArrayList<String>();
+                    ArrayList<String> tmp_locate_address = new ArrayList<String>();
+
+                    top_route_name.setText(data.getJSONObject(0).getString("locate_name"));
+                    top_route_address.setText(data.getJSONObject(0).getString("locate_address"));
+
+                    for (int i = 1; i < data.length(); i++) {
+                        // List 어댑터에 전달할 값들
+                        tmp_locate_name.add(data.getJSONObject(i).getString("locate_name"));
+                        tmp_locate_address.add(data.getJSONObject(i).getString("locate_address"));
+                    }
+
+                    // 가장 상위(도로) 다음 장소 item 셋팅
+                    top_route_name.setText(data.getJSONObject(0).getString("locate_name"));
+                    top_route_address.setText(data.getJSONObject(0).getString("locate_address"));
+
+                    // ListView 생성하면서 작성할 값 초기화
+                    LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address);
+
+                    // ListView 어댑터 연결
+                    ListView m_ListView = (ListView) findViewById(R.id.route_list);
+                    m_ListView.setAdapter(m_ListAdapter);
+
+                    m_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Toast.makeText(RoutePicker.this, "onItemClick", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                Log.d(TAG, String.valueOf(dbManager.printCountOfData()));
 
 
-                Intent intent = new Intent(RoutePicker.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                // Sliding panel
+                mLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+                mLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+                    @Override
+                    public void onPanelSlide(View panel, float slideOffset) {
+                        Log.i(TAG, "onPanelSlide, offset " + slideOffset);
+                        if (slideOffset >= 0) {
+                            mLayout.bringToFront();
+                        }
+                    }
 
-                // 메인 알람 설정
-                AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 0, alarmTAG);
+                    @Override
+                    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                        Log.i(TAG, "onPanelStateChanged " + newState);
+                        if (newState.toString().equals("EXPANDED")) {
+                            ImageView pannel_arrow = (ImageView) findViewById(R.id.pannel_arrow);
+                            pannel_arrow.setImageResource(R.drawable.down);
+                        } else if (newState.toString().equals("COLLAPSED")) {
+                            LinearLayout searchLayout = (LinearLayout) findViewById(R.id.search_bar);
+                            searchLayout.bringToFront();
+                            ImageView pannel_arrow = (ImageView) findViewById(R.id.pannel_arrow);
+                            pannel_arrow.setImageResource(R.drawable.up);
+                        }
+                    }
+                });
+                mLayout.setFadeOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    }
+                });
 
-                setMyButtonEnable(addRouteButton);
-            }
-        });
+                break;
+            /** 경로보기만 하는 경우 */
+            case 2:
+                LinearLayout dragView = (LinearLayout) findViewById(R.id.dragView);
+                EditText search_form = (EditText) findViewById(R.id.search_form);
+                ImageButton search_button = (ImageButton) findViewById(R.id.search_button);
+                dragView.setVisibility(View.GONE);
+                search_form.setVisibility(View.GONE);
+                search_button.setVisibility(View.GONE);
 
-        /**************
-         * 리사이클러 뷰
-         **************/
-        try {
-            // TODO RouteAdapter 생성후 바꿔야함
-            String testData = "[{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
-                    ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
-                    ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
-                    ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }]";
-            JSONArray data = new JSONArray(testData);
-            Log.d("JSON: ", data.toString());
-            ArrayList<String> tmp_locate_name = new ArrayList<String>();
-            ArrayList<String> tmp_locate_address = new ArrayList<String>();
+                addRouteButton.setText("확인");
+                addRouteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(RoutePicker.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                });
+                DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
 
-            top_route_name.setText(data.getJSONObject(0).getString("locate_name"));
-            top_route_address.setText(data.getJSONObject(0).getString("locate_address"));
+                JSONArray routes = dbManager.getRoute(ids);
+                Log.d(TAG, "routes: " + routes.toString());
 
-            for (int i = 1; i < data.length(); i++) {
-                // List 어댑터에 전달할 값들
-                tmp_locate_name.add(data.getJSONObject(i).getString("locate_name"));
-                tmp_locate_address.add(data.getJSONObject(i).getString("locate_address"));
-            }
-
-            // 가장 상위(도로) 다음 장소 item 셋팅
-            top_route_name.setText(data.getJSONObject(0).getString("locate_name"));
-            top_route_address.setText(data.getJSONObject(0).getString("locate_address"));
-
-            // ListView 생성하면서 작성할 값 초기화
-            LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address);
-
-            // ListView 어댑터 연결
-            ListView m_ListView = (ListView) findViewById(R.id.route_list);
-            m_ListView.setAdapter(m_ListAdapter);
-
-            m_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(RoutePicker.this, "onItemClick", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
+                routeGenerate(routes);
+                break;
         }
-
-
-        // Sliding panel
-        mLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                Log.i(TAG, "onPanelSlide, offset " + slideOffset);
-                if (slideOffset >= 0) {
-                    mLayout.bringToFront();
-                }
-            }
-
-            @Override
-            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                Log.i(TAG, "onPanelStateChanged " + newState);
-                if (newState.toString().equals("EXPANDED")) {
-                    ImageView pannel_arrow = (ImageView) findViewById(R.id.pannel_arrow);
-                    pannel_arrow.setImageResource(R.drawable.down);
-                } else if (newState.toString().equals("COLLAPSED")) {
-                    LinearLayout searchLayout = (LinearLayout) findViewById(R.id.search_bar);
-                    searchLayout.bringToFront();
-                    ImageView pannel_arrow = (ImageView) findViewById(R.id.pannel_arrow);
-                    pannel_arrow.setImageResource(R.drawable.up);
-                }
-            }
-        });
-        mLayout.setFadeOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            }
-        });
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
     }
 
     // 구글맵 초기화
@@ -253,7 +289,7 @@ public class RoutePicker extends AppCompatActivity {
                 }
                 marker = map.addMarker(new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
-                        .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                        .anchor(0.0f, 0.5f) // Anchors the marker on the bottom left
                         .position(latLng));
                 isSetMarker = true;
 
@@ -302,73 +338,9 @@ public class RoutePicker extends AppCompatActivity {
                     String status = responseData.getString("status");
                     if (status.equals("OK")) {
                         JSONArray routes = responseData.getJSONArray("routes");
+                        routeInfo = routes.toString();
 
-                        ArrayList<JSONObject> eachRoutes = new ArrayList<JSONObject>();
-                        for (int i = 0; i < routes.length(); i++) {
-                            eachRoutes.add(routes.getJSONObject(i)); // 각 루트들 저장
-                        }
-                        JSONArray eachRoutesSteps = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps");
-
-                        // 출발 시간 저장
-                        long getTime = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONObject("departure_time").getLong("value") * 1000; // 초는 포함되지 않기 때문에 1000 곱함
-                        getTime = getTime + mAlarmValue.getPreAlram() * 60 * 1000; // 미리 알림 시간 포함
-                        Date depDate = new Date(getTime); // 출발 시간
-                        mAlarmValue.setDepartureTime(depDate.getHours(), depDate.getMinutes());
-
-                        // 지도에 그릴 Polyline
-                        PolylineOptions polylineOptions = new PolylineOptions();
-
-                        for (int i = 0; i < eachRoutesSteps.length(); i++) {
-                            // 교통편 확인
-                            switch (eachRoutesSteps.getJSONObject(i).getString("travel_mode")) {
-                                case "WALKING": // 걸어갈 경우
-                                    // 도보 길안내 (Google Map 은 길안내가 자세히 안나와있으므로 T Map 이용)
-                                    JSONArray walkStep = eachRoutesSteps.getJSONObject(i).getJSONArray("steps");
-                                    for (int j = 0; j < walkStep.length(); j++) {
-                                        List<LatLng> poly = PolyUtil.decode(walkStep.getJSONObject(j).getJSONObject("polyline").getString("points"));
-
-                                        // T Map 에서 도보 길찾기 정보 가져옴
-                                        // TODO 길 모양 이쁘게 나오도록 수정은 했으나 블루라인과 레드라인이 안어올림
-                                        TMapRoute.mTMapRoute.searchRoute(
-                                                getString(R.string.T_API_KEY),
-                                                "도보로 걷기", // 시작위치 이름
-                                                poly.get(0),
-                                                eachRoutesSteps.getJSONObject(i).getString("html_instructions"), // 목적지 위치 이름
-                                                poly.get(1),
-                                                new MyCallback() { // Data 콜백
-                                                    @Override
-                                                    public void httpProcessing(JSONObject result) {
-                                                        PolylineOptions walkPolylineOptions = new PolylineOptions();
-                                                        markingMap(result, walkPolylineOptions); // 지도에 마크하기
-
-                                                        map.addPolyline(walkPolylineOptions);
-                                                    }
-                                                });
-                                    }
-                                    break;
-                                case "TRANSIT": // 교통수단 탈 경우
-                                    JSONObject detailTransit = eachRoutesSteps.getJSONObject(i).getJSONObject("transit_details");
-                                    // 교통수단 길안내
-                                    List<LatLng> tranPoly = PolyUtil.decode(eachRoutesSteps.getJSONObject(i).getJSONObject("polyline").getString("points"));
-                                    for (int j = 0; j < tranPoly.size(); j++) {
-                                        polylineOptions.add(tranPoly.get(j))
-                                                .width(25)
-                                                .color(Color.BLUE);
-                                    }
-
-                                    switch (detailTransit.getJSONObject("line").getJSONObject("vehicle").getString("type")) {
-                                        case "BUS": // 버스인 경우
-                                            // TODO 버스
-                                            break;
-                                        case "SUBWAY": // 지하철인 경우
-                                            // TODO 지하철
-                                            break;
-                                    }
-                                    break;
-                            }
-                        }
-
-                        Polyline polyline = map.addPolyline(polylineOptions);
+                        routeGenerate(routes);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -383,6 +355,79 @@ public class RoutePicker extends AppCompatActivity {
                 Log.d(TAG, "아예실패");
             }
         });
+    }
+
+    protected void routeGenerate(JSONArray routes) {
+        try {
+            ArrayList<JSONObject> eachRoutes = new ArrayList<JSONObject>();
+            for (int i = 0; i < routes.length(); i++) {
+                eachRoutes.add(routes.getJSONObject(i)); // 각 루트들 저장
+            }
+            JSONArray eachRoutesSteps = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps");
+
+            // 출발 시간 저장
+            long getTime = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONObject("departure_time").getLong("value") * 1000; // 초는 포함되지 않기 때문에 1000 곱함
+            getTime = getTime + mAlarmValue.getPreAlram() * 60 * 1000; // 미리 알림 시간 포함
+            Date depDate = new Date(getTime); // 출발 시간
+            mAlarmValue.setDepartureTime(depDate.getHours(), depDate.getMinutes());
+
+            // 지도에 그릴 Polyline
+            PolylineOptions polylineOptions = new PolylineOptions();
+
+            for (int i = 0; i < eachRoutesSteps.length(); i++) {
+                // 교통편 확인
+                switch (eachRoutesSteps.getJSONObject(i).getString("travel_mode")) {
+                    case "WALKING": // 걸어갈 경우
+                        // 도보 길안내 (Google Map 은 길안내가 자세히 안나와있으므로 T Map 이용)
+                        JSONArray walkStep = eachRoutesSteps.getJSONObject(i).getJSONArray("steps");
+                        for (int j = 0; j < walkStep.length(); j++) {
+                            List<LatLng> poly = PolyUtil.decode(walkStep.getJSONObject(j).getJSONObject("polyline").getString("points"));
+
+                            // T Map 에서 도보 길찾기 정보 가져옴
+                            // TODO 길 모양 이쁘게 나오도록 수정은 했으나 블루라인과 레드라인이 안어올림
+                            TMapRoute.mTMapRoute.searchRoute(
+                                    getString(R.string.T_API_KEY),
+                                    "도보로 걷기", // 시작위치 이름
+                                    poly.get(0),
+                                    eachRoutesSteps.getJSONObject(i).getString("html_instructions"), // 목적지 위치 이름
+                                    poly.get(1),
+                                    new MyCallback() { // Data 콜백
+                                        @Override
+                                        public void httpProcessing(JSONObject result) {
+                                            PolylineOptions walkPolylineOptions = new PolylineOptions();
+                                            markingMap(result, walkPolylineOptions); // 지도에 마크하기
+
+                                            map.addPolyline(walkPolylineOptions);
+                                        }
+                                    });
+                        }
+                        break;
+                    case "TRANSIT": // 교통수단 탈 경우
+                        JSONObject detailTransit = eachRoutesSteps.getJSONObject(i).getJSONObject("transit_details");
+                        // 교통수단 길안내
+                        List<LatLng> tranPoly = PolyUtil.decode(eachRoutesSteps.getJSONObject(i).getJSONObject("polyline").getString("points"));
+                        for (int j = 0; j < tranPoly.size(); j++) {
+                            polylineOptions.add(tranPoly.get(j))
+                                    .width(25)
+                                    .color(Color.BLUE);
+                        }
+
+                        switch (detailTransit.getJSONObject("line").getJSONObject("vehicle").getString("type")) {
+                            case "BUS": // 버스인 경우
+                                // TODO 버스
+                                break;
+                            case "SUBWAY": // 지하철인 경우
+                                // TODO 지하철
+                                break;
+                        }
+                        break;
+                }
+            }
+
+            Polyline polyline = map.addPolyline(polylineOptions);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     // 지도에 마크하기
@@ -403,7 +448,7 @@ public class RoutePicker extends AppCompatActivity {
                         try {
                             marker = map.addMarker(new MarkerOptions()
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
-                                    .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                                    .anchor(0.5f, 0.8f) // Anchors the marker on the bottom left
                                     .position(mark)
                                     .title(URLDecoder.decode(properties.getString("name"), "UTF-8"))
                                     .snippet(URLDecoder.decode(properties.getString("description"), "UTF-8")));

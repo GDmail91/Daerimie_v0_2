@@ -87,6 +87,7 @@ public class AddAlram extends AppCompatActivity {
                     // 인텐트 추가
                     intent.putExtra("mAlarmValues", mAlarmValues);
                     intent.putExtra("alramDay", alramDay);
+                    intent.putExtra("ACTION_FLAG", 1);
                     startActivity(intent);
                 }
             }
