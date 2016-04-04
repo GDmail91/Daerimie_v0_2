@@ -149,7 +149,7 @@ public class RoutePicker extends AppCompatActivity {
                         startActivity(intent);
 
                         // 메인 알람 설정
-                        AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), 0, alarmTAG);
+                        AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), mAlarmValue.getPreAlram(), alarmTAG);
 
                         setMyButtonEnable(addRouteButton);
                     }
@@ -367,7 +367,6 @@ public class RoutePicker extends AppCompatActivity {
 
             // 출발 시간 저장
             long getTime = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONObject("departure_time").getLong("value") * 1000; // 초는 포함되지 않기 때문에 1000 곱함
-            getTime = getTime + mAlarmValue.getPreAlram() * 60 * 1000; // 미리 알림 시간 포함
             Date depDate = new Date(getTime); // 출발 시간
             mAlarmValue.setDepartureTime(depDate.getHours(), depDate.getMinutes());
 

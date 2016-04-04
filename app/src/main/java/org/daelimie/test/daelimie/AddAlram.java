@@ -120,7 +120,7 @@ public class AddAlram extends AppCompatActivity {
                             intent.getIntExtra("arrivalTimeHour", 0),
                             intent.getIntExtra("arrivalTimeMinute", 0));
                     mAlarmValues.setAlarmInfo(
-                            intent.getIntExtra("preAlram", 0));
+                            intent.getIntExtra("preAlram", 10));
                     alramDay = intent.getBooleanArrayExtra("alramDay");
 
                     // 시간 셋팅

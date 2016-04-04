@@ -38,7 +38,7 @@ public class DTOAlarmValues implements Serializable {
         arrivalTimeMinute = 0;
         departureTimeHour = 0;
         departureTimeMinute = 0;
-        preAlram = 0;
+        preAlram = 10;
     }
 
     public void setDeparture(LatLng departureLocate, String departurePlaceId, String departureName) {

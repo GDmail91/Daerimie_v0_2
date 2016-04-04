@@ -66,8 +66,9 @@
         <!-- 브로드캐스트 리시버 등록 -->
         <receiver android:name=".AlramReceiver">
             <intent-filter>
-                <action android:name="org.daelimie.test.daelimie.TEST">
-                </action></intent-filter>
+                <action android:name="org.daelimie.test.daelimie.TEST"/>
+                <action android:name="org.daelimie.test.daelimie.ALARMING"/>
+            </intent-filter>
         </receiver>
 
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for

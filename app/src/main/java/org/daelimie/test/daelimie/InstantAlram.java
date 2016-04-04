@@ -30,15 +30,15 @@ public class InstantAlram extends Activity implements
     }
 
     public void onClick(View v) {
-        /*switch (v.getId()) {
-            case R.id.btnConfirm:
+        switch (v.getId()) {
+            case R.id.alram_confirm:
                 this.finish();
                 break;
-            case R.id.btnCancel:
+            /*case R.id.btnCancel:
                 this.finish();
-                break;
+                break;*/
             default:
                 break;
-        }*/
+        }
     }
 }

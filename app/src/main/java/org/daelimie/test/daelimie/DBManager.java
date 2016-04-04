@@ -124,7 +124,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "preAlarm='" + mAlarmValues.getPreAlram() + "', " +
                 "alarmDay='" + alarmDay + "'" +
                 "WHERE _id='"+ids+"' ;";
-        String sqlForRoute = "UPDATE RouteInfo SET" +
+        String sqlForRoute = "UPDATE RouteInfo SET " +
                 "routeInfo='" + routeInfo + "' " +
                 "WHERE _alarm_id='"+ids+"' ;";
 
@@ -148,13 +148,21 @@ public class DBManager extends SQLiteOpenHelper {
 
     public void delete(int ids) {
         SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
         db.execSQL("DELETE FROM AlarmList WHERE _id='"+ids+"'");
+        db.execSQL("DELETE FROM RouteInfo WHERE _alarm_id='" + ids + "'");
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close();
     }
 
     public void deleteAll() {
         SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
         db.execSQL("DELETE FROM AlarmList");
+        db.execSQL("DELETE FROM RouteInfo");
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close();
     }
 
@@ -206,9 +214,41 @@ public class DBManager extends SQLiteOpenHelper {
     public JSONObject getData(int id) {
         SQLiteDatabase db = getReadableDatabase();
         JSONObject data = new JSONObject();
-        int i =0;
         try {
             Cursor cursor = db.rawQuery("SELECT * FROM AlarmList WHERE _id='"+id+"' ORDER BY _id DESC", null);
+            while(cursor.moveToNext()) {
+                JSONObject tempData = new JSONObject();
+                tempData.put("_id", cursor.getInt(0));
+                tempData.put("departureName", cursor.getString(1));
+                tempData.put("departurePlaceId", cursor.getString(2));
+                tempData.put("departureLocateLat", cursor.getDouble(3));
+                tempData.put("departureLocateLng", cursor.getDouble(4));
+                tempData.put("destinationName", cursor.getString(5));
+                tempData.put("destinationPlaceId", cursor.getString(6));
+                tempData.put("destinationLocateLat", cursor.getDouble(7));
+                tempData.put("destinationLocateLng", cursor.getDouble(8));
+                tempData.put("arrivalTimeHour", cursor.getInt(9));
+                tempData.put("arrivalTimeMinute", cursor.getInt(10));
+                tempData.put("departureTimeHour", cursor.getInt(11));
+                tempData.put("departureTimeMinute", cursor.getInt(12));
+                tempData.put("preAlarm", cursor.getInt(13));
+                tempData.put("alarmDay", cursor.getString(14));
+                tempData.put("_tag", cursor.getString(15));
+
+                data = tempData;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+    public JSONObject getData(String tag) {
+        SQLiteDatabase db = getReadableDatabase();
+        JSONObject data = new JSONObject();
+        try {
+            Cursor cursor = db.rawQuery("SELECT * FROM AlarmList WHERE _tag='"+tag+"' ORDER BY _id DESC", null);
             while(cursor.moveToNext()) {
                 JSONObject tempData = new JSONObject();
                 tempData.put("_id", cursor.getInt(0));
