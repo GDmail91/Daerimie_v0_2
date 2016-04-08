@@ -29,6 +29,10 @@
                 android:gravity="center"
                 android:text="--:--"
                 android:id="@+id/dep_time" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:src="@drawable/sandglass"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

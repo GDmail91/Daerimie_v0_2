@@ -63,6 +63,10 @@
             android:theme="@android:style/Theme.Dialog">
         </activity>
 
+        <activity android:name=".SelectableAlram"
+            android:theme="@android:style/Theme.Dialog">
+        </activity>
+
         <!-- 브로드캐스트 리시버 등록 -->
         <receiver android:name=".AlramReceiver">
             <intent-filter>

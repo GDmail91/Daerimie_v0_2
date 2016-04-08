@@ -14,10 +14,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -141,6 +144,252 @@ public class MainActivity extends AppCompatActivity {
             DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
 
             dbManager.deleteAll();
+
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.test_data) {
+            DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
+
+            DTOAlarmValues testData = new DTOAlarmValues();
+            testData.setDeparture(
+                    new LatLng(37.5563053, 126.953596),
+                    "ChIJgXJySHuifDUR6N3TstwKijY",
+                    "테스트 출발지"
+            );
+            testData.setDestination(
+                    new LatLng(37.5100699, 126.9638987),
+                    "ChIJ9Zn8GmCffDURKZct_JBNJDk",
+                    "테스트 목적지"
+            );
+            Date curtime = new Date(System.currentTimeMillis());
+            testData.setDepartureTime(curtime.getHours(), curtime.getMinutes());
+            testData.setArrivalTime(curtime.getHours(), curtime.getMinutes() + 1);
+            testData.setAlarmInfo(1);
+            String testRoute = "[{\"legs\":[\n" +
+                    "  \"geocoded_waypoints\": [\n" +
+                    "    {\n" +
+                    "      \"geocoder_status\": \"OK\",\n" +
+                    "      \"place_id\": \"ChIJgXJySHuifDUR6N3TstwKijY\",\n" +
+                    "      \"types\": [\n" +
+                    "        \"school\",\n" +
+                    "        \"point_of_interest\",\n" +
+                    "        \"establishment\"\n" +
+                    "      ]\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"geocoder_status\": \"OK\",\n" +
+                    "      \"place_id\": \"ChIJ9Zn8GmCffDURKZct_JBNJDk\",\n" +
+                    "      \"types\": [\n" +
+                    "        \"school\",\n" +
+                    "        \"point_of_interest\",\n" +
+                    "        \"establishment\"\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  ],\n" +
+                    "  \"routes\": [\n" +
+                    "    {\n" +
+                    "      \"legs\": [\n" +
+                    "        {\n" +
+                    "          \"arrival_time\": {\n" +
+                    "            \"text\": \"오후 4:01\",\n" +
+                    "            \"value\": 1459926099\n" +
+                    "          },\n" +
+                    "          \"departure_time\": {\n" +
+                    "            \"text\": \"오후 3:18\",\n" +
+                    "            \"value\": 1459923534\n" +
+                    "          },\n" +
+                    "          \"duration\": {\n" +
+                    "            \"text\": \"43분\",\n" +
+                    "            \"value\": 10\n" +
+                    "          },\n" +
+                    "          \"end_location\": {\n" +
+                    "            \"lat\": 37.5100699,\n" +
+                    "            \"lng\": 126.953596\n" +
+                    "          },\n" +
+                    "          \"start_address\": \"대한민국 서울특별시 중구 만리동2가 손기정로 73 서울봉래초등학교\",\n" +
+                    "          \"start_location\": {\n" +
+                    "            \"lat\": 37.5563053,\n" +
+                    "            \"lng\": 126.9638987\n" +
+                    "          },\n" +
+                    "          \"steps\": [\n" +
+                    "            {\n" +
+                    "              \"distance\": {\n" +
+                    "                \"text\": \"0.8 km\",\n" +
+                    "                \"value\": 765\n" +
+                    "              },\n" +
+                    "              \"duration\": {\n" +
+                    "                \"text\": \"13분\",\n" +
+                    "                \"value\": 10\n" +
+                    "              },\n" +
+                    "              \"end_location\": {\n" +
+                    "                \"lat\": 37.555439,\n" +
+                    "                \"lng\": 126.972518\n" +
+                    "              },\n" +
+                    "              \"polyline\": {\n" +
+                    "                \"points\": \"}efdFks|eWlD{t@\"\n" +
+                    "              },\n" +
+                    "              \"start_location\": {\n" +
+                    "                \"lat\": 37.5563053,\n" +
+                    "                \"lng\": 126.9638987\n" +
+                    "              },\n" +
+                    "              \"steps\": [\n" +
+                    "                {\n" +
+                    "                  \"distance\": {\n" +
+                    "                    \"text\": \"0.8 km\",\n" +
+                    "                    \"value\": 765\n" +
+                    "                  },\n" +
+                    "                  \"duration\": {\n" +
+                    "                    \"text\": \"13분\",\n" +
+                    "                    \"value\": 10\n" +
+                    "                  },\n" +
+                    "                  \"end_location\": {\n" +
+                    "                    \"lat\": 37.555439,\n" +
+                    "                    \"lng\": 126.972518\n" +
+                    "                  },\n" +
+                    "                  \"polyline\": {\n" +
+                    "                    \"points\": \"}efdFks|eWlD{t@\"\n" +
+                    "                  },\n" +
+                    "                  \"start_location\": {\n" +
+                    "                    \"lat\": 37.5563053,\n" +
+                    "                    \"lng\": 126.9638987\n" +
+                    "                  },\n" +
+                    "                  \"travel_mode\": \"WALKING\"\n" +
+                    "                }\n" +
+                    "              ],\n" +
+                    "              \"travel_mode\": \"WALKING\"\n" +
+                    "            },\n" +
+                    "            {\n" +
+                    "              \"distance\": {\n" +
+                    "                \"text\": \"5.5 km\",\n" +
+                    "                \"value\": 5451\n" +
+                    "              },\n" +
+                    "              \"duration\": {\n" +
+                    "                \"text\": \"19분\",\n" +
+                    "                \"value\": 10\n" +
+                    "              },\n" +
+                    "              \"end_location\": {\n" +
+                    "                \"lat\": 37.511824,\n" +
+                    "                \"lng\": 126.953593\n" +
+                    "              },\n" +
+                    "              \"html_instructions\": \"버스 서울대행\",\n" +
+                    "              \"polyline\": {\n" +
+                    "                \"points\": \"o`fdFgi~eWzBE~CYbDPfJnA|Df@bAB\\\\HjBTpAJ|TQnBOrEw@v\\\\{F`O}B`AMj@J`@TfC|ArQzPxWnVnDhD`QlPrAfAvCvCrA`AbDlBrCzAxNdHnDpBnFlDlLrHxBrAbAt@^h@bBvDb@~@x@p@f@\\\\pAj@\"\n" +
+                    "              },\n" +
+                    "              \"start_location\": {\n" +
+                    "                \"lat\": 37.555439,\n" +
+                    "                \"lng\": 126.972518\n" +
+                    "              },\n" +
+                    "              \"transit_details\": {\n" +
+                    "                \"arrival_stop\": {\n" +
+                    "                  \"location\": {\n" +
+                    "                    \"lat\": 37.511824,\n" +
+                    "                    \"lng\": 126.953593\n" +
+                    "                  },\n" +
+                    "                  \"name\": \"상도터널노량진동\"\n" +
+                    "                },\n" +
+                    "                \"arrival_time\": {\n" +
+                    "                  \"text\": \"오후 3:58\",\n" +
+                    "                  \"time_zone\": \"Asia/Seoul\",\n" +
+                    "                  \"value\": 1459925903\n" +
+                    "                },\n" +
+                    "                \"departure_stop\": {\n" +
+                    "                  \"location\": {\n" +
+                    "                    \"lat\": 37.555439,\n" +
+                    "                    \"lng\": 126.972518\n" +
+                    "                  },\n" +
+                    "                  \"name\": \"서울역버스환승센터\"\n" +
+                    "                },\n" +
+                    "                \"departure_time\": {\n" +
+                    "                  \"text\": \"오후 3:39\",\n" +
+                    "                  \"time_zone\": \"Asia/Seoul\",\n" +
+                    "                  \"value\": 1459924787\n" +
+                    "                },\n" +
+                    "                \"headsign\": \"서울대\",\n" +
+                    "                \"headway\": 480,\n" +
+                    "                \"line\": {\n" +
+                    "                  \"agencies\": [\n" +
+                    "                    {\n" +
+                    "                      \"name\": \"서울특별시버스운송사업조합\",\n" +
+                    "                      \"url\": \"http://www.odsay.com/Bus/Seoul_Main.asp?CID=1000&LMenu=1\"\n" +
+                    "                    }\n" +
+                    "                  ],\n" +
+                    "                  \"color\": \"#304ffe\",\n" +
+                    "                  \"name\": \"서울 간선버스\",\n" +
+                    "                  \"short_name\": \"501\",\n" +
+                    "                  \"text_color\": \"#ffffff\",\n" +
+                    "                  \"vehicle\": {\n" +
+                    "                    \"icon\": \"//maps.gstatic.com/mapfiles/transit/iw2/6/bus.png\",\n" +
+                    "                    \"name\": \"버스\",\n" +
+                    "                    \"type\": \"BUS\"\n" +
+                    "                  }\n" +
+                    "                },\n" +
+                    "                \"num_stops\": 8\n" +
+                    "              },\n" +
+                    "              \"travel_mode\": \"TRANSIT\"\n" +
+                    "            },\n" +
+                    "            {\n" +
+                    "              \"distance\": {\n" +
+                    "                \"text\": \"0.2 km\",\n" +
+                    "                \"value\": 195\n" +
+                    "              },\n" +
+                    "              \"duration\": {\n" +
+                    "                \"text\": \"3분\",\n" +
+                    "                \"value\": 10\n" +
+                    "              },\n" +
+                    "              \"end_location\": {\n" +
+                    "                \"lat\": 37.5100699,\n" +
+                    "                \"lng\": 126.953596\n" +
+                    "              },\n" +
+                    "              \"html_instructions\": \"대한민국 서울특별시 동작구 본동 노량진로26길 16-40 서울본동초등학교까지 도보\",\n" +
+                    "              \"polyline\": {\n" +
+                    "                \"points\": \"{o}cF}rzeW|IA\"\n" +
+                    "              },\n" +
+                    "              \"start_location\": {\n" +
+                    "                \"lat\": 37.511824,\n" +
+                    "                \"lng\": 126.953593\n" +
+                    "              },\n" +
+                    "              \"steps\": [\n" +
+                    "                {\n" +
+                    "                  \"distance\": {\n" +
+                    "                    \"text\": \"0.2 km\",\n" +
+                    "                    \"value\": 195\n" +
+                    "                  },\n" +
+                    "                  \"duration\": {\n" +
+                    "                    \"text\": \"3분\",\n" +
+                    "                    \"value\": 10\n" +
+                    "                  },\n" +
+                    "                  \"end_location\": {\n" +
+                    "                    \"lat\": 37.5100699,\n" +
+                    "                    \"lng\": 126.953596\n" +
+                    "                  },\n" +
+                    "                  \"polyline\": {\n" +
+                    "                    \"points\": \"{o}cF}rzeW|IA\"\n" +
+                    "                  },\n" +
+                    "                  \"start_location\": {\n" +
+                    "                    \"lat\": 37.511824,\n" +
+                    "                    \"lng\": 126.953593\n" +
+                    "                  },\n" +
+                    "                  \"travel_mode\": \"WALKING\"\n" +
+                    "                }\n" +
+                    "              ],\n" +
+                    "              \"travel_mode\": \"WALKING\"\n" +
+                    "            }\n" +
+                    "          ],\n" +
+                    "          \"via_waypoint\": []\n" +
+                    "        }\n" +
+                    "      ],\n" +
+                    "      \"overview_polyline\": {\n" +
+                    "        \"points\": \"}efdFks|eWlD{t@zBE~CYbDPdPvBbAB\\\\H|D`@|TQnBOjc@sHbQkCj@J`@TfC|ArQzPh]x[`QlPrAfAvCvCrA`AbDlBrCzAxNdHnDpB|S`NxBrAbAt@^h@bBvDb@~@x@p@f@\\\\pAj@|IA\"\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  ],\n" +
+                    "  \"status\": \"OK\"\n" +
+                    "}]}]";
+            String testTag = dbManager.insert(testData, "[true,true,true,true,true,true,true]", testRoute);
+            // 메인 알람 설정
+            AlarmHandler.alarmHandler.setAlarm(MainActivity.this, testData.getDepartureTimeHour(), testData.getDepartureTimeMinute(), testData.getPreAlram(), testTag);
 
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

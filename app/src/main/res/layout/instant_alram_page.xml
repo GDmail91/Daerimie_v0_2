@@ -9,30 +9,32 @@
     android:layout_gravity="center"
     android:background="@color/whiteGray">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:text="내림알림 타이틀"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:text="내림알림 메세지"
-            android:textSize="18sp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="내림알림 타이틀"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:id="@+id/title_view" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="내림알림 메세지"
+        android:textSize="18sp"
+        android:id="@+id/message_view" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="#00000000"
-            style="?android:attr/borderlessButtonStyle"
-            android:text="OK"
-            android:textSize="18sp"
-            android:textColor="@color/textPrimary"
-            android:id="@+id/alram_confirm"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="#00000000"
+        style="?android:attr/borderlessButtonStyle"
+        android:text="OK"
+        android:textSize="18sp"
+        android:textColor="@color/textPrimary"
+        android:id="@+id/alram_confirm"/>
 
 </LinearLayout>

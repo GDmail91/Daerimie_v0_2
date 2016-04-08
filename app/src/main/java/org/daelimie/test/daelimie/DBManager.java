@@ -70,6 +70,7 @@ public class DBManager extends SQLiteOpenHelper {
         }
 
         String alarmTAG = "org.daelimie.test.daelimie.Alarm" + (topNumber+1);
+        //String alarmTAG = "org.daelimie.test.daelimie.TEST";
         String sql = "INSERT INTO AlarmList VALUES(" +
                 "'" + (topNumber+1) + "', " +
                 "'" + mAlarmValues.getDepartureName() + "', " +
@@ -107,7 +108,8 @@ public class DBManager extends SQLiteOpenHelper {
                          String alarmDay,
                          String routeInfo,
                          int ids) {
-        String alarmTAG = "org.daelimie.test.daelimie.Alarm" + ids;
+        String alarmTAG = "org.daelimie.test.daelimie.Alarmming" + ids;
+        //String alarmTAG = "org.daelimie.test.daelimie.TEST";
         String sql = "UPDATE AlarmList SET " +
                 "departureName='" + mAlarmValues.getDepartureName() + "', " +
                 "departurePlaceId='" + mAlarmValues.getDeparturePlaceId() + "', " +

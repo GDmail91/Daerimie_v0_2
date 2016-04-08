@@ -11,5 +11,6 @@
     <color name="whiteGray">#E0E0E0</color>
     <color name="darkGray">#5E5E5E</color>
     <color name="textPrimary">#4ABECD</color>
+    <color name="textWarning">#CA584C</color>
     <color name="instantAlram">#66000000</color>
 </resources>

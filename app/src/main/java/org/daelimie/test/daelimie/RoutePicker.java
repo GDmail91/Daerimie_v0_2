@@ -64,26 +64,26 @@ public class RoutePicker extends AppCompatActivity {
     TextView top_route_address;
 
     static final LatLng SEOUL = new LatLng(37.56, 126.97);
-    private GoogleMap map;
-    private Marker marker;
-    private Boolean isSetMarker = false;
+    protected GoogleMap map;
+    protected Marker marker;
+    protected Boolean isSetMarker = false;
 
     // 선택된 경로 정보
-    private DTOAlarmValues mAlarmValue;
-    private boolean[] alramDay; // 알림 받을 요일
-    private int ids = 0;
-    private String routeInfo;
+    protected DTOAlarmValues mAlarmValue;
+    protected boolean[] alramDay; // 알림 받을 요일
+    protected int ids = 0;
+    protected String routeInfo;
 
-    private SlidingUpPanelLayout mLayout;
-    private Button addRouteButton;
+    protected SlidingUpPanelLayout mLayout;
+    protected Button addRouteButton;
 
     // 구글 플레이스 관련
-    private int PLACE_PICKER_REQUEST = 1;
+    protected int PLACE_PICKER_REQUEST = 1;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    private GoogleApiClient client;
+    protected GoogleApiClient client;
 
 
     @Override
@@ -269,7 +269,7 @@ public class RoutePicker extends AppCompatActivity {
     }
 
     // 구글맵 초기화
-    private void initGoogleMap() {
+    protected void initGoogleMap() {
 
         /*******************
          * 구글맵 컴포넌트
@@ -300,7 +300,7 @@ public class RoutePicker extends AppCompatActivity {
     }
 
     // 길정보 생성
-    public void route_info(LatLng departureLocate, LatLng destinationLocate, String departurePlaceId, String destinationPlaceId) {
+    protected void route_info(LatLng departureLocate, LatLng destinationLocate, String departurePlaceId, String destinationPlaceId) {
         Log.d(TAG, departurePlaceId + " / " + destinationPlaceId);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com/")
@@ -314,6 +314,7 @@ public class RoutePicker extends AppCompatActivity {
         settingTime.set(Calendar.MINUTE, mAlarmValue.getArrivalTimeMinute());
         Log.d("Time Test", "" + settingTime.getTimeInMillis() / 1000);
 
+        // 출발지/도착지를 매개변수중 원하는 것 골라서 집어넣음 (Overriding 가능)
         Call<LinkedHashMap> res = service.getDirections(
                 getString(R.string.WEB_API_KEY),
                 "place_id:" + departurePlaceId,
@@ -368,7 +369,8 @@ public class RoutePicker extends AppCompatActivity {
             // 출발 시간 저장
             long getTime = eachRoutes.get(0).getJSONArray("legs").getJSONObject(0).getJSONObject("departure_time").getLong("value") * 1000; // 초는 포함되지 않기 때문에 1000 곱함
             Date depDate = new Date(getTime); // 출발 시간
-            mAlarmValue.setDepartureTime(depDate.getHours(), depDate.getMinutes());
+            if (mAlarmValue != null)
+                mAlarmValue.setDepartureTime(depDate.getHours(), depDate.getMinutes());
 
             // 지도에 그릴 Polyline
             PolylineOptions polylineOptions = new PolylineOptions();
@@ -540,7 +542,7 @@ public class RoutePicker extends AppCompatActivity {
      * @param convertString
      * @return boolean[]
      ***************/
-    private boolean[] convertStringToBoolean(String convertString) {
+    protected boolean[] convertStringToBoolean(String convertString) {
         String[] parts = convertString.split(" ");
 
         boolean[] array = new boolean[parts.length];
@@ -555,7 +557,7 @@ public class RoutePicker extends AppCompatActivity {
      * @param boolArray
      * @return boolean[]
      ***************/
-    private String convertBooleanToString(boolean[] boolArray) {
+    protected String convertBooleanToString(boolean[] boolArray) {
         String convertedString= "";
         for (int i = 0;i<boolArray.length; i++) {
             convertedString = convertedString + boolArray[i];
@@ -566,11 +568,11 @@ public class RoutePicker extends AppCompatActivity {
         return convertedString;
     }
 
-    private void setMyButtonEnable(Button button) {
+    protected void setMyButtonEnable(Button button) {
         button.setEnabled(true);
     }
 
-    private void setMyButtonDisable(Button button) {
+    protected void setMyButtonDisable(Button button) {
         button.setEnabled(false);
     }
 }

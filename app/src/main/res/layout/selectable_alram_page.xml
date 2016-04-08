@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="162dp"
+    android:paddingTop="30dp"
+    android:paddingRight="30dp"
+    android:paddingLeft="30dp"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:background="@color/whiteGray">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="내림알림 타이틀"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:id="@+id/title_view" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="내림알림 메세지"
+        android:textSize="18sp"
+        android:id="@+id/message_view" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="#00000000"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="다른경로"
+            android:textSize="18sp"
+            android:textColor="@color/textWarning"
+            android:id="@+id/next_route"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:background="#00000000"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="OK"
+            android:textSize="18sp"
+            android:textColor="@color/textPrimary"
+            android:id="@+id/alram_confirm"/>
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>
