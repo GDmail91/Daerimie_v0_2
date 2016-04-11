@@ -134,11 +134,11 @@ public class RoutePicker extends AppCompatActivity {
                         Log.d(TAG, convertBooleanToString(alramDay));
                         boolean[] test = convertStringToBoolean(convertBooleanToString(alramDay));
 
-                        String alarmTAG;
+                        int alarm_id;
                         if (ids != 0) {
-                            alarmTAG = dbManager.update(mAlarmValue, convertBooleanToString(alramDay), routeInfo, ids);
+                            alarm_id = dbManager.update(mAlarmValue, convertBooleanToString(alramDay), routeInfo, ids);
                         } else {
-                            alarmTAG = dbManager.insert(mAlarmValue, convertBooleanToString(alramDay), routeInfo);
+                            alarm_id = dbManager.insert(mAlarmValue, convertBooleanToString(alramDay), routeInfo);
                         }
                         Log.d(TAG, String.valueOf(dbManager.printCountOfData()));
 
@@ -149,7 +149,7 @@ public class RoutePicker extends AppCompatActivity {
                         startActivity(intent);
 
                         // 메인 알람 설정
-                        AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), mAlarmValue.getPreAlram(), alarmTAG);
+                        AlarmHandler.alarmHandler.setAlarm(RoutePicker.this, mAlarmValue.getDepartureTimeHour(), mAlarmValue.getDepartureTimeMinute(), mAlarmValue.getPreAlram(), alarm_id);
 
                         setMyButtonEnable(addRouteButton);
                     }
@@ -183,7 +183,18 @@ public class RoutePicker extends AppCompatActivity {
                     top_route_address.setText(data.getJSONObject(0).getString("locate_address"));
 
                     // ListView 생성하면서 작성할 값 초기화
-                    LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address);
+                    LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address, new LocateItemCallback() {
+                        @Override
+                        public void itemChange(int position) {
+
+                        }
+
+                        @Override
+                        public void markingLocate(LatLng latLng) {
+
+                        }
+
+                    });
 
                     // ListView 어댑터 연결
                     ListView m_ListView = (ListView) findViewById(R.id.route_list);

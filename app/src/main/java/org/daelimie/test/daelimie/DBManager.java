@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +46,9 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE RouteInfo (" +
                 "_alarm_id INTEGER PRIMARY KEY, " +
                 "routeInfo TEXT);");
+        db.execSQL("CREATE TABLE RunIndex (" +
+                "_alarm_id INTEGER PRIMARY KEY, " +
+                "cur_index INTEGER);");
     }
 
     @Override
@@ -53,7 +57,14 @@ public class DBManager extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public String insert(DTOAlarmValues mAlarmValues,
+    /** 삽입 SQL
+     *
+     * @param mAlarmValues
+     * @param alarmDay
+     * @param routeInfo
+     * @return topNumber
+     */
+    public int insert(DTOAlarmValues mAlarmValues,
                          String alarmDay,
                          String routeInfo) {
         SQLiteDatabase dbR = getReadableDatabase();
@@ -91,20 +102,34 @@ public class DBManager extends SQLiteOpenHelper {
         String sqlForRoute = "INSERT INTO RouteInfo VALUES(" +
                 "'" + (topNumber+1) + "', " +
                 "'" + routeInfo + "');";
+        Log.d("DB Manager", "알람 데이터: "+sql);
+        Log.d("DB Manager", "루트 데이터: "+sqlForRoute);
 
         // DB 작업 실행
         SQLiteDatabase dbW = getWritableDatabase();
         dbW.beginTransaction();
-        dbW.execSQL(sql);
-        dbW.execSQL(sqlForRoute);
-        dbW.setTransactionSuccessful();
-        dbW.endTransaction();
-        dbW.close();
+        try {
+            dbW.execSQL(sql);
+            dbW.execSQL(sqlForRoute);
+            dbW.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbW.endTransaction(); //트랜잭션을 끝내는 메소드.
+        }
 
-        return alarmTAG;
+        return topNumber+1;
     }
 
-    public String update(DTOAlarmValues mAlarmValues,
+    /** 수정 SQL
+     *
+     * @param mAlarmValues
+     * @param alarmDay
+     * @param routeInfo
+     * @param ids
+     * @return ids
+     */
+    public int update(DTOAlarmValues mAlarmValues,
                          String alarmDay,
                          String routeInfo,
                          int ids) {
@@ -133,13 +158,19 @@ public class DBManager extends SQLiteOpenHelper {
         // DB 작업 실행
         SQLiteDatabase dbW = getWritableDatabase();
         dbW.beginTransaction();
-        dbW.execSQL(sql);
-        dbW.execSQL(sqlForRoute);
-        dbW.setTransactionSuccessful();
-        dbW.endTransaction();
-        dbW.close();
+        try {
+            dbW.execSQL(sql);
+            dbW.execSQL(sqlForRoute);
+            dbW.setTransactionSuccessful();
+            dbW.endTransaction();
+            dbW.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbW.endTransaction(); //트랜잭션을 끝내는 메소드.
+        }
 
-        return alarmTAG;
+        return ids;
     }
 
     public void update(String _query) {
@@ -151,21 +182,29 @@ public class DBManager extends SQLiteOpenHelper {
     public void delete(int ids) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
-        db.execSQL("DELETE FROM AlarmList WHERE _id='"+ids+"'");
-        db.execSQL("DELETE FROM RouteInfo WHERE _alarm_id='" + ids + "'");
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        try {
+            db.execSQL("DELETE FROM AlarmList WHERE _id='" + ids + "'");
+            db.execSQL("DELETE FROM RouteInfo WHERE _alarm_id='" + ids + "'");
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     public void deleteAll() {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
-        db.execSQL("DELETE FROM AlarmList");
-        db.execSQL("DELETE FROM RouteInfo");
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        try {
+            db.execSQL("DELETE FROM AlarmList");
+            db.execSQL("DELETE FROM RouteInfo");
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     public int printCountOfData() {
@@ -294,5 +333,60 @@ public class DBManager extends SQLiteOpenHelper {
         }
 
         return data;
+    }
+
+    public int getIndex(int _alarm_id) {
+        SQLiteDatabase db = getReadableDatabase();
+        int cur_index = 0;
+        Cursor cursor = db.rawQuery("SELECT * FROM RunIndex WHERE _alarm_id='" + _alarm_id + "';", null);
+        while(cursor.moveToNext()) {
+            cur_index = cursor.getInt(1);
+        }
+
+        return cur_index;
+    }
+
+    public int setIndex(int _alarm_id, int cur_index) {
+        SQLiteDatabase dbR = getReadableDatabase();
+        Cursor cursor = dbR.rawQuery("SELECT * FROM RunIndex WHERE _alarm_id='" + _alarm_id + "';", null);
+        if(cursor.moveToNext()) {
+            updateIndex(_alarm_id, cur_index);
+        } else {
+            String sql = "INSERT INTO RunIndex VALUES(" +
+                    "'" + _alarm_id + "'," +
+                    "'" + cur_index + "');";
+
+            // DB 작업 실행
+            SQLiteDatabase dbW = getWritableDatabase();
+            dbW.execSQL(sql);
+            dbW.close();
+        }
+
+        return cur_index;
+    }
+
+    public int updateIndex(int _alarm_id, int cur_index) {
+
+        String sql = "UPDATE RunIndex SET " +
+                "_alarm_id = '" + _alarm_id + "'," +
+                "cur_index = '" + cur_index + "' " +
+                "WHERE _alarm_id ='"+_alarm_id+"';";
+
+        // DB 작업 실행
+        SQLiteDatabase dbW = getWritableDatabase();
+        dbW.execSQL(sql);
+        dbW.close();
+
+        return cur_index;
+    }
+
+    public void delIndex(int _alarm_id) {
+        String sql = "DELETE FROM RunIndex " +
+                "WHERE _alarmd_id = '" + _alarm_id + "');";
+
+        // DB 작업 실행
+        SQLiteDatabase dbW = getWritableDatabase();
+        dbW.execSQL(sql);
+        dbW.close();
     }
 }

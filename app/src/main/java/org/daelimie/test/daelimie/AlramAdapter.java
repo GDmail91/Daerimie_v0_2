@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * Created by YS on 2016-03-08.
  */
 public class AlramAdapter extends BaseAdapter {
-    private static final String TAG = "ButtonAdapter";
+    private static final String TAG = "AlarmAdapter";
     private ArrayList<Integer> ids;
     private ArrayList<String> m_dep;
     private ArrayList<String> m_des;

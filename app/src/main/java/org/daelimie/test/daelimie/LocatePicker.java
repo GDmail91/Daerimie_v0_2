@@ -1,4 +1,3 @@
-
 package org.daelimie.test.daelimie;
 
 import android.content.Intent;
@@ -6,9 +5,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,7 +32,15 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -47,13 +57,17 @@ public class LocatePicker extends AppCompatActivity {
 
     private static final String TAG = "LocatePicker";
 
+    ListView m_ListView;
     TextView top_locate_name;
     TextView top_locate_address;
 
-    static final LatLng SEOUL = new LatLng( 37.56, 126.97);
+    static final LatLng SEOUL = new LatLng(37.56, 126.97);
     private GoogleMap map;
     private Marker marker;
     private Boolean isSetMarker = false;
+
+    // 검색 쿼리 정보
+    EditText searchForm;
 
     // 선택된 지역 정보
     private String BUTTON_FLAG;
@@ -61,11 +75,18 @@ public class LocatePicker extends AppCompatActivity {
     private double selectedLocateLng; // 경도
     private String selectedPlaceId; // 지역 정보
     private String selectedName; // 이름
+    private String selectedAddress; // 주소
+
+    private ArrayList<NaverItem> searchList = new ArrayList<>();
 
     private SlidingUpPanelLayout mLayout;
 
     // 구글 플레이스 관련
     private int PLACE_PICKER_REQUEST = 1;
+
+    // 네이버 지역 검색 관련
+    private XmlPullParser xpp;
+    String data;
 
 
     @Override
@@ -83,14 +104,91 @@ public class LocatePicker extends AppCompatActivity {
         // 구글 맵 생성
         initGoogleMap();
 
-
+        m_ListView = (ListView) findViewById(R.id.locate_list);
         top_locate_name = (TextView) findViewById(R.id.top_locate_name);
         top_locate_address = (TextView) findViewById(R.id.top_locate_address);
-        ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+        final ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+        searchForm = (EditText) findViewById(R.id.search_form);
+
+        searchForm.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchForm.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE
+                || event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    searchButton.callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //openAutocompleteActivity();
+                try {
+                    final String query = searchForm.getText().toString();
+                    Log.d(TAG, "검색문자열: " + query);
+                    Log.d(TAG, "변환: " + URLEncoder.encode(query, "UTF-8").toString());
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                // TODO Auto-generated method stub
+                                data = getXmlData(getString(R.string.NAVER_CLIENT_ID), getString(R.string.NAVER_CLIENT_KEY), URLEncoder.encode(query, "UTF-8").toString()); //아래 메소드를 호출하여 XML data를 파싱해서 String 객체로 얻어오기
+                                Log.d(TAG, "반환된 값: "+data);
+
+                                selectedLocateLat = searchList.get(0).getMapx();
+                                selectedLocateLng = searchList.get(0).getMapy();
+                                selectedName = searchList.get(0).getTitle();
+                                selectedAddress = searchList.get(0).getAddress();
+
+                                Log.d(TAG, "선택된 지역: " + selectedName + ", " + selectedLocateLat + ", " + selectedLocateLng);
+
+                                //UI Thread(Main Thread)를 제외한 어떤 Thread도 화면을 변경할 수 없기때문에
+                                //runOnUiThread()를 이용하여 UI Thread가 TextView 글씨 변경하도록 함
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // TODO Auto-generated method stub
+                                        try {
+                                            JSONArray tempArray = new JSONArray();
+                                            for (int i=0; i<searchList.size(); i++) {
+                                                JSONObject tempObject = new JSONObject();
+                                                tempObject.put("locate_name", searchList.get(i).getTitle());
+                                                tempObject.put("locate_address", searchList.get(i).getAddress());
+                                                tempObject.put("locate_mapx", searchList.get(i).getMapx());
+                                                tempObject.put("locate_mapy", searchList.get(i).getMapy());
+                                                tempArray.put(tempObject);
+
+                                                Log.d(TAG, "들어있는 " + i + "번째 아이템: " + searchList.get(i).getAddress());
+                                            }
+                                            setSearchList(tempArray.toString());
+                                            // 마킹 위치 바꿈
+                                            LatLng latLng = new LatLng(selectedLocateLat, selectedLocateLng);
+                                            marker = map.addMarker(new MarkerOptions()
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                                                    .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                                                    .position(latLng));
+                                            isSetMarker = true;
+
+                                            map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(selectedLocateLat, selectedLocateLng)));   // 마커생성위치로 이동
+                                            marker.showInfoWindow();
+                                        } catch(JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -110,49 +208,8 @@ public class LocatePicker extends AppCompatActivity {
             }
         });
 
-        /**************
-         * 리사이클러 뷰
-         **************/
-        try {
-            String testData = "[{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
-                    ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
-                    ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }" +
-                    ",{ locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }, { locate_name: '럭키아파트', locate_address: '서울시 금천구 시흥대로 47길' }]";
-            JSONArray data = new JSONArray(testData);
-            Log.d("JSON: ", data.toString());
-            ArrayList<String> tmp_locate_name = new ArrayList<String>();
-            ArrayList<String> tmp_locate_address = new ArrayList<String>();
-
-            top_locate_name.setText(data.getJSONObject(0).getString("locate_name"));
-            top_locate_address.setText(data.getJSONObject(0).getString("locate_address"));
-
-            for (int i = 1; i < data.length(); i++) {
-                // List 어댑터에 전달할 값들
-                tmp_locate_name.add(data.getJSONObject(i).getString("locate_name"));
-                tmp_locate_address.add(data.getJSONObject(i).getString("locate_address"));
-            }
-
-            // 가장 상위(도로) 다음 장소 item 셋팅
-            top_locate_name.setText(data.getJSONObject(0).getString("locate_name"));
-            top_locate_address.setText(data.getJSONObject(0).getString("locate_address"));
-
-            // ListView 생성하면서 작성할 값 초기화
-            LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address);
-
-            // ListView 어댑터 연결
-            ListView m_ListView = (ListView) findViewById(R.id.locate_list);
-            m_ListView.setAdapter(m_ListAdapter);
-
-            m_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(LocatePicker.this, "onItemClick", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String testData = "[{ locate_name: '검색 또는 지도를 클릭해 주세요', locate_address: '검색이 필요합니다.' }]";
+        setSearchList(testData);
 
 
         // Sliding panel
@@ -253,7 +310,7 @@ public class LocatePicker extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            // 받은 데이터 출력
+                // 받은 데이터 출력
                 Log.d(TAG, response.body().toString());
 
             }
@@ -330,6 +387,230 @@ public class LocatePicker extends AppCompatActivity {
             }
         }
     }
+    //XmlPullParser를 이용하여 Naver 에서 제공하는 OpenAPI XML 파일 파싱하기(parsing)
+    String getXmlData(String clientId, String secretKey, String encodedQuery){
 
+        StringBuffer buffer=new StringBuffer();
+
+        String queryUrl="https://openapi.naver.com/v1/search/local.xml?"   //요청 URL
+                +"&query="+encodedQuery         //지역검색 요청값
+                +"&display=10"                  //검색 출력 건수  10~100
+                +"&start=1"                     //검색 시작 위치  1~1000
+                +"&sort=vote";
+
+        try {
+            URL url= new URL(queryUrl); //문자열로 된 요청 url을 URL 객체로 생성.
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestProperty("X-Naver-Client-Id", clientId);
+            con.setRequestProperty("X-Naver-Client-Secret", secretKey);
+            con.connect();
+            InputStream is= con.getInputStream();  //url위치로 입력스트림 연결
+
+            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();
+            XmlPullParser xpp= factory.newPullParser();
+            xpp.setInput(new InputStreamReader(is, "UTF-8"));  //inputstream 으로부터 xml 입력받기
+
+            /*BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+            String line;
+            StringBuffer response = new StringBuffer();
+            while((line = rd.readLine()) != null) {
+                Log.d(TAG, "응답 메세지: "+line);
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();*/
+
+            int x=0,y=0;
+            String title = "없음";
+            String address = "없음";
+            String tag;
+
+
+
+            xpp.next();
+            int eventType= xpp.getEventType();
+            int i =0;
+            while( eventType != XmlPullParser.END_DOCUMENT ){
+                switch( eventType ){
+                    case XmlPullParser.START_DOCUMENT:
+                        buffer.append("start NAVER XML parsing...\n\n");
+                        break;
+
+                    case XmlPullParser.START_TAG:
+                        tag= xpp.getName();    //테그 이름 얻어오기
+
+                        if(tag.equals("item")) ;// 첫번째 검색결과
+                        else if(tag.equals("title")){
+                            buffer.append("업소명 : ");
+                            xpp.next();
+                            title = xpp.getText().toString();
+                            buffer.append(xpp.getText()); //title 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("category")){
+                            buffer.append("업종 : ");
+                            xpp.next();
+                            buffer.append(xpp.getText()); //category 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("description")){
+                            buffer.append("세부설명 :");
+                            xpp.next();
+                            buffer.append(xpp.getText()); //description 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("telephone")){
+                            buffer.append("연락처 :");
+                            xpp.next();
+                            buffer.append(xpp.getText()); //telephone 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("address")){
+                            buffer.append("주소 :");
+                            xpp.next();
+                            address = xpp.getText().toString();
+                            buffer.append(xpp.getText()); //address 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("roadAddress")){
+                            buffer.append("도로명주소 :");
+                            xpp.next();
+                            buffer.append(xpp.getText()); //address 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("mapx")){
+                            buffer.append("지도 위치 X :");
+                            xpp.next();
+                            x = Integer.parseInt(xpp.getText().toString());
+                            buffer.append(xpp.getText()); //mapx 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("  ,  ");          //줄바꿈 문자 추가
+                        }
+                        else if(tag.equals("mapy")){
+                            buffer.append("지도 위치 Y :");
+                            xpp.next();
+                            y = Integer.parseInt(xpp.getText().toString());
+                            buffer.append(xpp.getText()); //mapy 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                            buffer.append("\n");          //줄바꿈 문자 추가
+                        }
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        tag= xpp.getName();    //테그 이름 얻어오기
+
+                        if(tag.equals("item")) {
+
+                            GeoPoint in_pt = new GeoPoint(x,y);
+                            GeoPoint out_pt = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, in_pt);
+
+                            searchList.add(i++, new NaverItem(title, address, out_pt.getY(), out_pt.getX()));
+
+                            buffer.append("\n"); // 첫번째 검색결과종료..줄바꿈
+                        }
+
+                        break;
+                }
+                eventType= xpp.next();
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        buffer.append("end NAVER XML parsing...\n");
+
+        return buffer.toString(); //StringBuffer 문자열 객체 반환
+
+    }
+
+    private void setSearchList(String searchData) {
+        /**************
+         * 리사이클러 뷰
+         **************/
+        try {
+            JSONArray data = new JSONArray(searchData);
+            Log.d("JSON: ", data.toString());
+            ArrayList<String> tmp_locate_name = new ArrayList<String>();
+            ArrayList<String> tmp_locate_address = new ArrayList<String>();
+
+            top_locate_name.setText(data.getJSONObject(0).getString("locate_name"));
+            top_locate_address.setText(data.getJSONObject(0).getString("locate_address"));
+
+            for (int i = 1; i < data.length(); i++) {
+                // List 어댑터에 전달할 값들
+                tmp_locate_name.add(data.getJSONObject(i).getString("locate_name"));
+                tmp_locate_address.add(data.getJSONObject(i).getString("locate_address"));
+            }
+
+            // ListView 생성하면서 작성할 값 초기화
+            LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address, new LocateItemCallback() {
+                @Override
+                public void itemChange(int position) {
+                    NaverItem temp = searchList.remove(position+1);
+                    searchList.add(0, temp);
+
+                    try {
+                        JSONArray tempArray = new JSONArray();
+                        for (int i=0; i<searchList.size(); i++) {
+                            JSONObject tempObject = new JSONObject();
+                            tempObject.put("locate_name", searchList.get(i).getTitle());
+                            tempObject.put("locate_address", searchList.get(i).getAddress());
+                            tempObject.put("locate_mapx", searchList.get(i).getMapx());
+                            tempObject.put("locate_mapy", searchList.get(i).getMapy());
+                            tempArray.put(tempObject);
+
+                            Log.d(TAG, "들어있는 " + i + "번째 아이템: " + searchList.get(i).getAddress());
+                        }
+                        setSearchList(tempArray.toString());
+
+                        // 마킹 위치 바꿈
+                        selectedLocateLat = searchList.get(0).getMapx();
+                        selectedLocateLng = searchList.get(0).getMapy();
+                        selectedName = searchList.get(0).getTitle();
+                        selectedAddress = searchList.get(0).getAddress();
+
+                        LatLng latLng = new LatLng(selectedLocateLat, selectedLocateLng);
+                        marker = map.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                                .position(latLng));
+                        isSetMarker = true;
+
+                        map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(selectedLocateLat, selectedLocateLng)));   // 마커생성위치로 이동
+                        marker.showInfoWindow();
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                @Override
+                public void markingLocate(LatLng latLng) {
+                    marker = map.addMarker(new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                            .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                            .position(latLng));
+                    isSetMarker = true;
+
+                    map.animateCamera(CameraUpdateFactory.newLatLng(latLng));   // 마커생성위치로 이동
+                    marker.showInfoWindow();
+                }
+            });
+
+            // ListView 어댑터 연결
+
+            m_ListView.setAdapter(m_ListAdapter);
+
+            m_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Toast.makeText(LocatePicker.this, "onItemClick", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 

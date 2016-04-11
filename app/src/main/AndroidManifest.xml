@@ -63,7 +63,7 @@
             android:theme="@android:style/Theme.Dialog">
         </activity>
 
-        <activity android:name=".SelectableAlram"
+        <activity android:name=".SelectableAlarm"
             android:theme="@android:style/Theme.Dialog">
         </activity>
 

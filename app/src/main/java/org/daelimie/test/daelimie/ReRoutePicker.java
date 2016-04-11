@@ -112,6 +112,9 @@ public class ReRoutePicker extends RoutePicker {
 
                     // 차량 탑승 알림 등록
                     AlarmHandler.alarmHandler.setInstanceAlarm(ReRoutePicker.this, System.currentTimeMillis() + (timer * 1000), steps.toString(), 0);
+                    // DB에 현재 인덱스 저장
+                    DBManager dbManager = new DBManager(getApplicationContext(), "Alarm.db", null, 1);
+                    //dbManager.setIndex(alarm_id, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -148,7 +151,17 @@ public class ReRoutePicker extends RoutePicker {
             top_route_address.setText(data.getJSONObject(0).getString("locate_address"));
 
             // ListView 생성하면서 작성할 값 초기화
-            LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address);
+            LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address, new LocateItemCallback() {
+                @Override
+                public void itemChange(int position) {
+
+                }
+
+                @Override
+                public void markingLocate(LatLng latLng) {
+
+                }
+            });
 
             // ListView 어댑터 연결
             ListView m_ListView = (ListView) findViewById(R.id.route_list);

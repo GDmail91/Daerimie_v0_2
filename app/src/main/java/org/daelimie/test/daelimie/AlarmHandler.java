@@ -21,16 +21,16 @@ public class AlarmHandler {
      * @param mHour
      * @param mMinute
      * @param preAlarm
-     * @param INTENT_ACTION
+     * @param alarm_id
      * @return boolean
      ***************/
-    protected boolean setAlarm(Context context, int mHour, int mMinute, int preAlarm, String INTENT_ACTION){
+    protected boolean setAlarm(Context context, int mHour, int mMinute, int preAlarm, int alarm_id){
         try {
             Log.i(TAG, "set time : " + mHour + "/" + mMinute);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             Intent intent = new Intent("org.daelimie.test.daelimie.TEST");
-            intent.putExtra("tag", INTENT_ACTION);
+            intent.putExtra("alarm_id", alarm_id);
             PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
             // preAlarm 시간만큼 빼서 미리 알림 주기
@@ -74,17 +74,16 @@ public class AlarmHandler {
      * @param context
      * @param timer
      * @param steps
-     * @param step_index
      * @return boolean
      ***************/
-    protected boolean setInstanceAlarm(Context context, long timer, String steps, int step_index){
-        Log.d(TAG, "steps: "+steps+"\nstep_index: "+step_index);
+    protected boolean setInstanceAlarm(Context context, long timer, String steps, int alarm_id){
+        Log.d(TAG, "steps: "+steps);
         try {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             Intent intent = new Intent("org.daelimie.test.daelimie.ALARMING");
-            intent.putExtra("step_index", step_index+1);    // 진행중인 단계
             intent.putExtra("steps", steps);    // 진행중인 루트 스텝
+            intent.putExtra("alarm_id", alarm_id);
             PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
             // 알림 설정

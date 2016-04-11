@@ -127,7 +127,9 @@
                     android:textSize="20sp"
                     android:hint="검색"
                     android:background="@drawable/search_shape"
-                    android:layout_weight="8" />
+                    android:layout_weight="8"
+                    android:singleLine="true"
+                    android:lines="1" />
                 <ImageButton
                     android:id="@+id/search_button"
                     android:layout_width="0dp"

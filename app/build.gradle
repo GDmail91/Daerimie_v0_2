@@ -6,16 +6,29 @@ android {
 
     defaultConfig {
         applicationId "org.daelimie.test.daelimie"
-        minSdkVersion 14
+        minSdkVersion 21 // 14였음 Long.compare 때문 19, 21 이상이여야 빌드속도 올라감
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
     }
+    dexOptions {
+        preDexLibraries true
+        javaMaxHeapSize "2g"
+        incremental true
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        dev {
+            minSdkVersion 21
+        }
+        prod {
+            minSdkVersion 19
         }
     }
 }
@@ -29,5 +42,10 @@ dependencies {
     compile 'com.sothree.slidinguppanel:library:3.3.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.0-beta4'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta4'
+    compile ('com.squareup.retrofit2:converter-simplexml:2.0.0-beta4'){
+        exclude group: 'xpp3', module: 'xpp3'
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'stax', module: 'stax'
+    }
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 }

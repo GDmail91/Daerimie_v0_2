@@ -18,7 +18,7 @@ public class SelectableAlarm extends Activity implements
 
     private Button mConfirm, mCancel, mNextRoute;
     private LatLng departureStop;
-    private String _TAG;
+    private int alarm_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class SelectableAlarm extends Activity implements
 
         Intent intent = getIntent();
         Bundle intentBundle = intent.getExtras();
-        _TAG = intentBundle.getString("tag");
+        alarm_id = intentBundle.getInt("alarm_id");
         String title = intentBundle.getString("title");
         String message = intentBundle.getString("message");
         departureStop = new LatLng(intentBundle.getDouble("departure_stop_lat"), intentBundle.getDouble("departure_stop_lng"));
@@ -63,7 +63,7 @@ public class SelectableAlarm extends Activity implements
                 AlarmHandler.alarmHandler.releaseAlarm(this, "org.daelimie.test.daelimie.ALARMING");
 
                 Intent intent = new Intent(SelectableAlarm.this, MainActivity.class);
-                intent.putExtra("tag", _TAG);
+                intent.putExtra("alarm_id", alarm_id);
                 intent.putExtra("departureStop", departureStop);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
