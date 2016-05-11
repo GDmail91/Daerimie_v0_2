@@ -80,6 +80,12 @@
         android:layout_marginTop="?attr/actionBarSize"
         android:paddingTop="3dp"
         >
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:src="@drawable/daelimie_gray_icon4"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@+id/myRouteList"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

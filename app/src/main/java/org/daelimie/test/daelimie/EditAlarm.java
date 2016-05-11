@@ -3,6 +3,7 @@ package org.daelimie.test.daelimie;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -61,8 +62,8 @@ public class EditAlarm extends AddAlram {
             mAlarmValues.setAlarmInfo(
                     data.getInt("preAlarm"));
 
-            departureNameView.setText(mAlarmValues.getDepartureName());
-            destinationNameView.setText(mAlarmValues.getDestinationName());
+            departureNameView.setText(Html.fromHtml(mAlarmValues.getDepartureName()));
+            destinationNameView.setText(Html.fromHtml(mAlarmValues.getDestinationName()));
 
             // 시간 셋팅
             if (mAlarmValues.getArrivalTimeHour() > 12) {

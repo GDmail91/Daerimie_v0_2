@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
+    android:paddingTop="30dp"
+    android:paddingRight="30dp"
+    android:paddingLeft="30dp"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:background="@color/whiteGray">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="차량 도착 알림"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:id="@+id/title_view" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="차량 도착 알림 메세지"
+        android:textSize="18sp"
+        android:id="@+id/message_view" />
+
+    <!-- 구분선 -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/darkGray"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10"
+        android:layout_marginBottom="5dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:textAlignment="textStart"
+            android:text="차량 위치"
+            android:textSize="10sp"
+            android:textColor="@color/addBlue"
+            android:layout_weight="3.5"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:layout_marginBottom="5dp"
+            android:textAlignment="textStart"
+            android:text="현재 위치"
+            android:textSize="10sp"
+            android:textColor="@color/addBlue"/>
+
+
+        <!-- 구분선 -->
+        <ImageView
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@color/darkGray"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:textAlignment="textStart"
+            android:text="차량 위치"
+            android:textSize="10sp"
+            android:textColor="@color/addBlue"
+            android:layout_weight="3.5"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:layout_marginBottom="5dp"
+            android:textAlignment="textStart"
+            android:text="현재 위치"
+            android:textSize="10sp"
+            android:textColor="@color/addBlue"/>
+
+    </LinearLayout>
+
+    <!-- 구분선 -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/darkGray"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="5"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:textAlignment="textStart"
+                android:text="@string/subway_pre_stop"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/up_pre_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textStart"
+                android:text="-분"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/up_pre_time" />
+
+        </LinearLayout>
+
+        <!-- 구분선 -->
+        <ImageView
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@color/darkGray"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:orientation="horizontal"
+            android:layout_weight="5"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:textAlignment="textStart"
+                android:text="@string/subway_pre_stop"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/down_pre_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textStart"
+                android:text="-분"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/down_pre_time" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <!-- 구분선 -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/darkGray"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="5"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:textAlignment="textStart"
+                android:text="@string/subway_pre_stop"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/up_pre_pre_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textStart"
+                android:text="-분"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/up_pre_pre_time" />
+
+        </LinearLayout>
+
+        <!-- 구분선 -->
+        <ImageView
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@color/darkGray"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:orientation="horizontal"
+            android:layout_weight="5"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:textAlignment="textStart"
+                android:text="@string/subway_pre_stop"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/down_pre_pre_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textStart"
+                android:text="-분"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/down_pre_pre_time" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <!-- 구분선 -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/darkGray"/>
+
+<!--
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="5"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:textAlignment="textStart"
+                android:text="@string/subway_pre_stop"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/up_pre_pre_pre_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textStart"
+                android:text="-분"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/up_pre_pre_pre_time" />
+
+        </LinearLayout>
+
+        &lt;!&ndash; 구분선 &ndash;&gt;
+        <ImageView
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@color/darkGray"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:orientation="horizontal"
+            android:layout_weight="5"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:textAlignment="textStart"
+                android:text="@string/subway_pre_stop"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/down_pre_pre_pre_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textStart"
+                android:text="-분"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:id="@+id/down_pre_pre_pre_time" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    &lt;!&ndash; 구분선 &ndash;&gt;
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/darkGray"/>
+-->
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="#00000000"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="다른경로"
+            android:textSize="18sp"
+            android:textColor="@color/textWarning"
+            android:id="@+id/next_route"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:background="#00000000"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="OK"
+            android:textSize="18sp"
+            android:textColor="@color/textPrimary"
+            android:id="@+id/alram_confirm"/>
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>

@@ -5,6 +5,11 @@
     <string name="WEB_API_KEY">AIzaSyBMLIqkyR6suL0Oxkksq38mG042ejY3U6U</string>
     <string name="T_API_KEY">7fe7df4d-8023-3097-b792-1db92cf787a9</string>
     <string name="SEOUL_API_KEY">6844586752736f6f34385548715767</string>
+    <string name="SEOUL_REALTIME_API_KEY">415a594263736f6f33324f6b524471</string>
     <string name="NAVER_CLIENT_ID">gIOOrxyF7PZ6t6MYMqhF</string>
     <string name="NAVER_CLIENT_KEY">8sHCIXjUmk</string>
+    <string name="bus_pre_stop">전전역 도착</string>
+    <string name="bus_pre_pre_stop">도착정보 없음</string>
+    <string name="subway_pre_stop">--행\n전역 도착</string>
+    <string name="subway_pre_pre_stop">--행\n역 전 도착</string>
 </resources>

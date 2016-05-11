@@ -9,6 +9,7 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="whiteGray">#E0E0E0</color>
+    <color name="whiteGrayTrans">#40E0E0E0</color>
     <color name="darkGray">#5E5E5E</color>
     <color name="textPrimary">#4ABECD</color>
     <color name="textWarning">#CA584C</color>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -77,7 +78,7 @@ public class LocatePicker extends AppCompatActivity {
     private String selectedName; // 이름
     private String selectedAddress; // 주소
 
-    private ArrayList<NaverItem> searchList = new ArrayList<>();
+    private ArrayList<DTOSearchItem> searchList = new ArrayList<>();
 
     private SlidingUpPanelLayout mLayout;
 
@@ -136,49 +137,60 @@ public class LocatePicker extends AppCompatActivity {
                             try {
                                 // TODO Auto-generated method stub
                                 data = getXmlData(getString(R.string.NAVER_CLIENT_ID), getString(R.string.NAVER_CLIENT_KEY), URLEncoder.encode(query, "UTF-8").toString()); //아래 메소드를 호출하여 XML data를 파싱해서 String 객체로 얻어오기
-                                Log.d(TAG, "반환된 값: "+data);
+                                Log.d(TAG, "반환된 값: " + data);
 
-                                selectedLocateLat = searchList.get(0).getMapx();
-                                selectedLocateLng = searchList.get(0).getMapy();
-                                selectedName = searchList.get(0).getTitle();
-                                selectedAddress = searchList.get(0).getAddress();
+                                if (searchList.size() != 0) {
 
-                                Log.d(TAG, "선택된 지역: " + selectedName + ", " + selectedLocateLat + ", " + selectedLocateLng);
+                                    selectedLocateLat = searchList.get(0).getMapx();
+                                    selectedLocateLng = searchList.get(0).getMapy();
+                                    if (searchList.get(0).getPlaceId() != null)
+                                        selectedPlaceId = "place_id:"+searchList.get(0).getPlaceId();
+                                    else
+                                        selectedPlaceId = searchList.get(0).getMapx() + " " + searchList.get(0).getMapy();
+                                    selectedName = searchList.get(0).getTitle();
+                                    selectedAddress = searchList.get(0).getAddress();
 
-                                //UI Thread(Main Thread)를 제외한 어떤 Thread도 화면을 변경할 수 없기때문에
-                                //runOnUiThread()를 이용하여 UI Thread가 TextView 글씨 변경하도록 함
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // TODO Auto-generated method stub
-                                        try {
-                                            JSONArray tempArray = new JSONArray();
-                                            for (int i=0; i<searchList.size(); i++) {
-                                                JSONObject tempObject = new JSONObject();
-                                                tempObject.put("locate_name", searchList.get(i).getTitle());
-                                                tempObject.put("locate_address", searchList.get(i).getAddress());
-                                                tempObject.put("locate_mapx", searchList.get(i).getMapx());
-                                                tempObject.put("locate_mapy", searchList.get(i).getMapy());
-                                                tempArray.put(tempObject);
+                                    Log.d(TAG, "선택된 지역: " + selectedName + ", " + selectedLocateLat + ", " + selectedLocateLng);
 
-                                                Log.d(TAG, "들어있는 " + i + "번째 아이템: " + searchList.get(i).getAddress());
+                                    //UI Thread(Main Thread)를 제외한 어떤 Thread도 화면을 변경할 수 없기때문에
+                                    //runOnUiThread()를 이용하여 UI Thread가 TextView 글씨 변경하도록 함
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // TODO Auto-generated method stub
+                                            try {
+                                                JSONArray tempArray = new JSONArray();
+                                                for (int i = 0; i < searchList.size(); i++) {
+                                                    JSONObject tempObject = new JSONObject();
+                                                    tempObject.put("locate_name", searchList.get(i).getTitle());
+                                                    tempObject.put("locate_address", searchList.get(i).getAddress());
+                                                    tempObject.put("locate_mapx", searchList.get(i).getMapx());
+                                                    tempObject.put("locate_mapy", searchList.get(i).getMapy());
+                                                    tempArray.put(tempObject);
+
+                                                    Log.d(TAG, "들어있는 " + i + "번째 아이템: " + searchList.get(i).getAddress());
+                                                }
+                                                setSearchList(tempArray.toString());
+                                                // 마킹 위치 바꿈
+                                                LatLng latLng = new LatLng(selectedLocateLat, selectedLocateLng);
+                                                marker = map.addMarker(new MarkerOptions()
+                                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                                                        .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                                                        .position(latLng));
+                                                isSetMarker = true;
+
+                                                map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(selectedLocateLat, selectedLocateLng)));   // 마커생성위치로 이동
+                                                marker.showInfoWindow();
+
+                                            } catch(JSONException e) {
+                                                e.printStackTrace();
                                             }
-                                            setSearchList(tempArray.toString());
-                                            // 마킹 위치 바꿈
-                                            LatLng latLng = new LatLng(selectedLocateLat, selectedLocateLng);
-                                            marker = map.addMarker(new MarkerOptions()
-                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
-                                                    .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                                                    .position(latLng));
-                                            isSetMarker = true;
-
-                                            map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(selectedLocateLat, selectedLocateLng)));   // 마커생성위치로 이동
-                                            marker.showInfoWindow();
-                                        } catch(JSONException e) {
-                                            e.printStackTrace();
                                         }
-                                    }
-                                });
+                                    });
+                                } else {
+                                    top_locate_name.setText("검색 결과를 찾을 수 없습니다.");
+                                    top_locate_address.setText("다시 검색해 주세요.");
+                                }
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
@@ -302,10 +314,48 @@ public class LocatePicker extends AppCompatActivity {
                     if (status.equals("OK")) {
                         JSONArray results = responseData.getJSONArray("results");
                         Log.d(TAG, results.toString());
-                        JSONObject firstItem = results.getJSONObject(1); // 가장 상위(도로) 다음 장소 가져옴
-                        selectedPlaceId = firstItem.getString("place_id");
+                        Log.d(TAG, "results 길이: "+ results.length());
 
-                        locateDetail(selectedPlaceId);
+                        // 기존 검색결과 제거
+                        searchList.clear();
+                        // 새 검색결과 삽입
+                        if (results.length() == 1) {
+                            searchList.add(new DTOSearchItem(
+                                    results.getJSONObject(0).getString("name"),
+                                    results.getJSONObject(0).getString("vicinity"),
+                                    results.getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
+                                    results.getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
+                                    results.getJSONObject(0).getString("place_id")));
+                        } else {
+                            for (int i = 1; i < results.length(); i++) {
+                                searchList.add(new DTOSearchItem(
+                                        results.getJSONObject(i).getString("name"),
+                                        results.getJSONObject(i).getString("vicinity"),
+                                        results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
+                                        results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
+                                        results.getJSONObject(i).getString("place_id")));
+                            }
+                        }
+
+                        //JSONObject firstItem = results.getJSONObject(1); // 가장 상위는 도로정보 이므로 다음 장소 가져옴
+                        //selectedPlaceId = firstItem.getString("place_id");
+
+                        //locateDetail(selectedPlaceId);
+
+                        JSONArray tempArray = new JSONArray();
+                        for (int i=0; i<searchList.size(); i++) {
+                            JSONObject tempObject = new JSONObject();
+                            tempObject.put("locate_name", searchList.get(i).getTitle());
+                            tempObject.put("locate_address", searchList.get(i).getAddress());
+                            tempObject.put("place_id", searchList.get(i).getPlaceId());
+                            tempObject.put("locate_mapx", searchList.get(i).getMapx());
+                            tempObject.put("locate_mapy", searchList.get(i).getMapy());
+                            tempArray.put(tempObject);
+
+                            Log.d(TAG, "들어있는 " + i + "번째 아이템: " + searchList.get(i).getAddress());
+                        }
+                        setSearchList(tempArray.toString());
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -355,12 +405,13 @@ public class LocatePicker extends AppCompatActivity {
                         selectedName = name;
                         top_locate_name.setText(name);
                         top_locate_address.setText(address);
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 // 받은 데이터 출력
-                Log.d(TAG, response.body().toString());
+                Log.d(TAG, "각 검색된 지역 정보: "+response.body().toString());
 
             }
 
@@ -425,8 +476,8 @@ public class LocatePicker extends AppCompatActivity {
             String address = "없음";
             String tag;
 
-
-
+            // 기존 검색된 데이터 제거
+            searchList.clear();
             xpp.next();
             int eventType= xpp.getEventType();
             int i =0;
@@ -505,7 +556,7 @@ public class LocatePicker extends AppCompatActivity {
                             GeoPoint in_pt = new GeoPoint(x,y);
                             GeoPoint out_pt = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, in_pt);
 
-                            searchList.add(i++, new NaverItem(title, address, out_pt.getY(), out_pt.getX()));
+                            searchList.add(i++, new DTOSearchItem(title, address, out_pt.getY(), out_pt.getX(), null));
 
                             buffer.append("\n"); // 첫번째 검색결과종료..줄바꿈
                         }
@@ -535,8 +586,18 @@ public class LocatePicker extends AppCompatActivity {
             ArrayList<String> tmp_locate_name = new ArrayList<String>();
             ArrayList<String> tmp_locate_address = new ArrayList<String>();
 
-            top_locate_name.setText(data.getJSONObject(0).getString("locate_name"));
-            top_locate_address.setText(data.getJSONObject(0).getString("locate_address"));
+            top_locate_name.setText(Html.fromHtml(data.getJSONObject(0).getString("locate_name")));
+            top_locate_address.setText(Html.fromHtml(data.getJSONObject(0).getString("locate_address")));
+
+            // 마킹 위치 바꿈
+            selectedLocateLat = searchList.get(0).getMapx();
+            selectedLocateLng = searchList.get(0).getMapy();
+            if (searchList.get(0).getPlaceId() != null)
+                selectedPlaceId = "place_id:"+searchList.get(0).getPlaceId();
+            else
+                selectedPlaceId = searchList.get(0).getMapx() + " " + searchList.get(0).getMapy();
+            selectedName = searchList.get(0).getTitle();
+            selectedAddress = searchList.get(0).getAddress();
 
             for (int i = 1; i < data.length(); i++) {
                 // List 어댑터에 전달할 값들
@@ -548,7 +609,7 @@ public class LocatePicker extends AppCompatActivity {
             LocateAdapter m_ListAdapter = new LocateAdapter(tmp_locate_name, tmp_locate_address, new LocateItemCallback() {
                 @Override
                 public void itemChange(int position) {
-                    NaverItem temp = searchList.remove(position+1);
+                    DTOSearchItem temp = searchList.remove(position+1);
                     searchList.add(0, temp);
 
                     try {
@@ -557,6 +618,7 @@ public class LocatePicker extends AppCompatActivity {
                             JSONObject tempObject = new JSONObject();
                             tempObject.put("locate_name", searchList.get(i).getTitle());
                             tempObject.put("locate_address", searchList.get(i).getAddress());
+                            tempObject.put("place_id", searchList.get(i).getPlaceId());
                             tempObject.put("locate_mapx", searchList.get(i).getMapx());
                             tempObject.put("locate_mapy", searchList.get(i).getMapy());
                             tempArray.put(tempObject);
@@ -568,6 +630,10 @@ public class LocatePicker extends AppCompatActivity {
                         // 마킹 위치 바꿈
                         selectedLocateLat = searchList.get(0).getMapx();
                         selectedLocateLng = searchList.get(0).getMapy();
+                        if (searchList.get(0).getPlaceId() != null)
+                            selectedPlaceId = "place_id:"+searchList.get(0).getPlaceId();
+                        else
+                            selectedPlaceId = searchList.get(0).getMapx() + " " + searchList.get(0).getMapy();
                         selectedName = searchList.get(0).getTitle();
                         selectedAddress = searchList.get(0).getAddress();
 

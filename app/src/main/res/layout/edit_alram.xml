@@ -7,6 +7,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <ImageView
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/daelimie_gray_icon4"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/buttonGroup"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -202,7 +209,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:weightSum="10">
+        android:weightSum="10"
+        android:id="@+id/buttonGroup">
 
         <Button
             android:layout_width="match_parent"

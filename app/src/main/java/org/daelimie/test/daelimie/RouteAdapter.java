@@ -13,15 +13,17 @@ import java.util.ArrayList;
 /**
  * Created by YS on 2016-03-08.
  */
-public class LocateAdapter extends BaseAdapter {
-    private static final String TAG = "LocateAdapter";
-    private ArrayList<String> m_locate;
-    private ArrayList<String> m_address;
+public class RouteAdapter extends BaseAdapter {
+    private static final String TAG = "RouteAdapter";
+    private ArrayList<String> m_route_type;
+    private ArrayList<String> m_route_des;
+    private ArrayList<String> m_route_duration;
     private LocateItemCallback callback;
 
-    public LocateAdapter(ArrayList<String> m_locate, ArrayList<String> m_address, LocateItemCallback callback) {
-        this.m_locate = m_locate;
-        this.m_address = m_address;
+    public RouteAdapter(ArrayList<String> m_route_type, ArrayList<String> m_route_des, ArrayList<String> m_route_duration, LocateItemCallback callback) {
+        this.m_route_type = m_route_type;
+        this.m_route_des = m_route_des;
+        this.m_route_duration = m_route_duration;
         this.callback = callback;
     }
 
@@ -29,13 +31,13 @@ public class LocateAdapter extends BaseAdapter {
     // 현재 아이템의 수를 리턴
     @Override
     public int getCount() {
-        return m_locate.size();
+        return m_route_duration.size();
     }
 
     // 현재 아이템의 오브젝트를 리턴, Object를 상황에 맞게 변경하거나 리턴받은 오브젝트를 캐스팅해서 사용
     @Override
     public Object getItem(int position) {
-        return m_locate.get(position);
+        return m_route_duration.get(position);
     }
 
     // 아이템 position의 ID 값 리턴
@@ -57,12 +59,12 @@ public class LocateAdapter extends BaseAdapter {
         if ( view == null ) {
             // view가 null일 경우 커스텀 레이아웃을 얻어 옴
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.locate_item, parent, false);
+            view = inflater.inflate(R.layout.route_item, parent, false);
 
             holder = new ViewHolder();
 
-            holder.locate_name = (TextView) view.findViewById(R.id.locate_name);
-            holder.locate_address = (TextView) view.findViewById(R.id.locate_address);
+            holder.route_type_view = (TextView) view.findViewById(R.id.route_type);
+            holder.route_des_view = (TextView) view.findViewById(R.id.route_destination);
 
             view.setTag(holder);
         } else {
@@ -74,8 +76,8 @@ public class LocateAdapter extends BaseAdapter {
         // 각 뷰에 값넣기
 
         // TextView에 현재 position의 문자열 추가
-        holder.locate_name.setText(Html.fromHtml(m_locate.get(position)));
-        holder.locate_address.setText(Html.fromHtml(m_address.get(position)));
+        holder.route_type_view.setText(Html.fromHtml(m_route_type.get(position)+" ("+m_route_duration.get(position)+")"));
+        holder.route_des_view.setText(Html.fromHtml(m_route_des.get(position)));
 /*
         // 버튼을 터치 했을 때 이벤트 발생
         holder.btn_test.setOnClickListener(new View.OnClickListener() {
@@ -113,20 +115,22 @@ public class LocateAdapter extends BaseAdapter {
     }
 
     static class ViewHolder {
-        TextView locate_name;
-        TextView locate_address;
+        TextView route_type_view;
+        TextView route_des_view;
     }
 
     // 외부에서 아이템 추가 요청 시 사용
-    public void add(String _msg, String _mac) {
-        m_locate.add(_msg);
-        m_address.add(_mac);
+    public void add(String _type, String _des, String _duration) {
+        m_route_type.add(_type);
+        m_route_des.add(_des);
+        m_route_duration.add(_duration);
     }
 
     // 외부에서 아이템 삭제 요청 시 사용
     public void remove(int _position) {
-        m_locate.remove(_position);
-        m_address.remove(_position);
+        m_route_type.remove(_position);
+        m_route_des.remove(_position);
+        m_route_duration.remove(_position);
     }
 
 

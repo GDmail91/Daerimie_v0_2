@@ -3,17 +3,19 @@ package org.daelimie.test.daelimie;
 /**
  * Created by YS on 2016-04-10.
  */
-public class NaverItem {
+public class DTOSearchItem {
     private String title;
     private String address;
     private double mapx;
     private double mapy;
+    private String placeId;
 
-    public NaverItem(String title, String address, double mapx, double mapy) {
+    public DTOSearchItem(String title, String address, double mapx, double mapy, String placeId) {
         this.title = title;
         this.address = address;
         this.mapx = mapx;
         this.mapy = mapy;
+        this.placeId = placeId;
     }
 
     public String getTitle() {
@@ -46,5 +48,13 @@ public class NaverItem {
 
     public void setMapy(double mapy) {
         this.mapy = mapy;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 }

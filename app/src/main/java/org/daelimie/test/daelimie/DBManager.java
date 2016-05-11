@@ -162,8 +162,8 @@ public class DBManager extends SQLiteOpenHelper {
             dbW.execSQL(sql);
             dbW.execSQL(sqlForRoute);
             dbW.setTransactionSuccessful();
-            dbW.endTransaction();
-            dbW.close();
+            //dbW.endTransaction();
+            //dbW.close();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

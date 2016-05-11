@@ -60,6 +60,15 @@
                         android:orientation="horizontal"
                         android:weightSum="10"
                         android:id="@+id/selected_item">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:padding="20dp"
+                            android:background="@color/colorRed"
+                            android:text="위치 정보"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"/>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -74,7 +83,7 @@
                                 android:layout_marginEnd="10dp"
                                 android:textColor="@color/black"
                                 android:id="@+id/top_route_name"
-                                android:text="럭키아파트" />
+                                android:text="현재 경로 정보" />
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -83,16 +92,9 @@
                                 android:layout_marginEnd="10dp"
                                 android:textColor="@color/whiteGray"
                                 android:id="@+id/top_route_address"
-                                android:text="럭키아파트" />
+                                android:text="경로 방법 및 시간" />
 
                         </LinearLayout>
-
-                        <Button
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="10dp"
-                            android:layout_weight="2"
-                            android:text="위치보기" />
                     </LinearLayout>
 
                     <ListView
@@ -112,36 +114,33 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_alignTop="@+id/sliding_layout"
+                android:gravity="center"
+                android:background="#99E0E0E0"
                 android:weightSum="10"
                 android:id="@+id/search_bar" >
 
-                <EditText
-                    android:id="@+id/search_form"
+                <Button
+                    android:id="@+id/pre_button"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginLeft="5dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:paddingLeft="10dp"
-                    android:textSize="20sp"
-                    android:hint="검색"
-                    android:background="@drawable/search_shape"
-                    android:layout_weight="8" />
-                <ImageButton
-                    android:id="@+id/search_button"
+                    android:text="이전\n경로"
+                    android:layout_weight="2" />
+                <TextView
+                    android:id="@+id/start_time"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:text="출발 시간: "
+                    android:layout_weight="6" />
+                <Button
+                    android:id="@+id/next_button"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:paddingRight="10dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/search"
-                    android:contentDescription="search_button"
-                    android:background="@drawable/search_button"
+                    android:text="다음\n경로"
                     android:layout_weight="2" />
 
             </LinearLayout>

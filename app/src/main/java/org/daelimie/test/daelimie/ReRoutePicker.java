@@ -215,7 +215,7 @@ public class ReRoutePicker extends RoutePicker {
 
     // 길정보 생성
     @Override
-    protected void route_info(LatLng departureLocate, LatLng destinationLocate, String departurePlaceId, String destinationPlaceId) {
+    protected void route_info(String departurePlaceId, String destinationPlaceId) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -226,8 +226,8 @@ public class ReRoutePicker extends RoutePicker {
 
         Call<LinkedHashMap> res = service.getDirections(
                 getString(R.string.WEB_API_KEY),
-                departureLocate.latitude +","+departureLocate.longitude,
-                "place_id:" + destinationPlaceId,
+                departurePlaceId,
+                destinationPlaceId,
                 "transit",
                 "true",
                 "ko",

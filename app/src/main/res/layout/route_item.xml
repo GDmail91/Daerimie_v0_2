@@ -20,8 +20,8 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:textColor="@color/black"
-                android:text="럭키아파트"
-                android:id="@+id/route_name"/>
+                android:text="현재 경로 정보"
+                android:id="@+id/route_destination"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -29,8 +29,8 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:textColor="@color/whiteGray"
-                android:text="럭키아파트"
-                android:id="@+id/route_address"/>
+                android:text="경로 방법 및 시간"
+                android:id="@+id/route_type"/>
         </LinearLayout>
 
         <Button

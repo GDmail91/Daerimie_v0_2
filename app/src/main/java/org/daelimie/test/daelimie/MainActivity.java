@@ -570,6 +570,7 @@ public class MainActivity extends AppCompatActivity {
                     "                \"lat\": 37.555439,\n" +
                     "                \"lng\": 126.972518\n" +
                     "              },\n" +
+                    "              \"html_instructions\": \"서울역버스환승센터 까지 도보\",\n" +
                     "              \"polyline\": {\n" +
                     "                \"points\": \"}efdFks|eWlD{t@\"\n" +
                     "              },\n" +
@@ -735,6 +736,7 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             return true;
         }

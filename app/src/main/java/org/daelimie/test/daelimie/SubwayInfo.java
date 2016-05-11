@@ -21,9 +21,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class SubwayInfo {
     private String TAG = "SuvwayInfo";
     private int confDegree = 0;
+    private JSONObject lineInfo;
+    private JSONArray upSubInfo = new JSONArray();
+    private JSONArray downSubInfo = new JSONArray();
+    private JSONObject targetSubInfo = new JSONObject();
 
-
-    public int confusionDegree(String apikey, final String station_name, final SubwayInfoCallback callback) {
+    /*public int confusionDegree(String apikey, final String station_name, final SubwayInfoCallback callback) {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://openapi.seoul.go.kr:8088")
@@ -177,7 +180,7 @@ public class SubwayInfo {
         });
         return confDegree;
     }
-
+*/
     public int confusionDegreeWithName(String apikey, String lineName, String stationName, final SubwayInfoCallback callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://openapi.seoul.go.kr:8088")
@@ -342,5 +345,186 @@ public class SubwayInfo {
 
 
         return 0;
+    }
+
+    public void getSubwayArrivalList(final String apikey, final String lineNum, final String stationName, final String arrivalName, final SubwayInfoCallback callback) {
+Log.d(TAG, "지하철 도착정보 가져옴");
+        Log.d(TAG, "도착정보 가져오는 데이터: "+lineNum + " / "+stationName+" / "+arrivalName);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://swopenAPI.seoul.go.kr")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        SeoulSubwayCom service = retrofit.create(SeoulSubwayCom.class);
+
+        // 서울특별시 Topis에서 호선정보 가져옴
+        Call<LinkedHashMap> lineRes = service.subwayLineInfo(apikey, lineNum);
+
+        // 가져온 호선정보 응답 처리
+        lineRes.enqueue(new Callback<LinkedHashMap>() {
+            @Override
+            public void onResponse(Call<LinkedHashMap> call, Response<LinkedHashMap> response) {
+                try {
+                    // 받은 데이터
+                    LinkedHashMap temp = response.body();
+
+                    JSONObject responseData = new JSONObject(temp);
+                    String RESULT_CODE = responseData.getJSONObject("errorMessage").getString("code");
+                    if (RESULT_CODE.equals("INFO-000")) {
+                        JSONArray row = responseData.getJSONArray("lineList");
+                        lineInfo = row.getJSONObject(0);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LinkedHashMap> call, Throwable t) {
+
+                // TODO 실패
+                Log.d(TAG, t.toString());
+                Log.d(TAG, "아예실패");
+            }
+        });
+
+
+        // 서울특별시 Topis에서 실시간 도착정보 가져옴
+        Call<LinkedHashMap> arrivalRes = service.subwayArrivalList(apikey, stationName);
+
+        // 실시간 도착정보 응답 처리
+        arrivalRes.enqueue(new Callback<LinkedHashMap>() {
+            @Override
+            public void onResponse(Call<LinkedHashMap> call, Response<LinkedHashMap> response) {
+                try {
+                    // 받은 데이터
+                    LinkedHashMap temp = response.body();
+
+                    JSONObject responseData = new JSONObject(temp);
+                    String RESULT_CODE = responseData.getJSONObject("errorMessage").getString("code");
+                    if (RESULT_CODE.equals("INFO-000")) {
+                        final JSONArray row = responseData.getJSONArray("realtimeArrivalList");
+
+                        for(int i=0; i<row.length(); i++) {
+
+                        }
+
+                        getDestinationInfo(apikey, lineNum, arrivalName, new SeoulDesSubwayCom() {
+                            @Override
+                            public void destinationInfo(JSONObject stationInfo) {
+                                try {
+                                    for(int i=0; i<row.length(); i++) {
+                                        Log.d(TAG, "row 실행: "+i);
+                                        if (row.getJSONObject(i).getString("subwayId").equals(lineInfo.getString("subwayId"))) {
+                                            // 각 정보를 상,하행으로 구분
+                                            switch (row.getJSONObject(i).getString("updnLine")) {
+                                                case "상행":
+                                                case "외선":
+                                                    upSubInfo.put(row.getJSONObject(i));
+                                                    break;
+
+                                                case "하행":
+                                                case "내선":
+                                                    downSubInfo.put(row.getJSONObject(i));
+                                                    break;
+
+                                            }
+
+                                            // target이 셋팅되어 있다면 실행하지 않음
+                                            //if (targetSubInfo != null || targetSubInfo.length() != 0) {
+                                            // 구분된 정보를 목적지와 비교하여 타야할 차량의 상,하행 구분
+                                            if (row.getJSONObject(i).getInt("statnId") < stationInfo.getInt("statnId")) {
+                                                if (row.getJSONObject(i).getString("updnLine").equals("상행")
+                                                        || row.getJSONObject(i).getString("updnLine").equals("외선")) {
+                                                    targetSubInfo = row.getJSONObject(i);
+                                                }
+                                            } else if (row.getJSONObject(i).getInt("statnId") > stationInfo.getInt("statnId")) {
+                                                if (row.getJSONObject(i).getString("updnLine").equals("하행")
+                                                        || row.getJSONObject(i).getString("updnLine").equals("내선")) {
+                                                    targetSubInfo = row.getJSONObject(i);
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                    Log.d(TAG, "상행 정보: "+upSubInfo.toString());
+                                    Log.d(TAG, "하행 정보: "+downSubInfo.toString());
+                                    // 모든 정보가 들어온 경우 콜백
+                                    switch (targetSubInfo.getString("updnLine")) {
+                                        case "상행":
+                                        case "외선":
+                                            callback.subwayArrivalList(upSubInfo, targetSubInfo);
+                                            break;
+
+                                        case "하행":
+                                        case "내선":
+                                            callback.subwayArrivalList(downSubInfo, targetSubInfo);
+                                            break;
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LinkedHashMap> call, Throwable t) {
+
+                // TODO 실패
+                Log.d(TAG, t.toString());
+                Log.d(TAG, "아예실패");
+            }
+        });
+    }
+
+    private void getDestinationInfo(String apikey, final String stationLine, String stationName, final SeoulDesSubwayCom callback) {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://swopenAPI.seoul.go.kr")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        SeoulSubwayCom service = retrofit.create(SeoulSubwayCom.class);
+
+        // 서울특별시 Topis에서 호선정보 가져옴
+        Call<LinkedHashMap> lineRes = service.subwayStationInfo(apikey, stationName);
+
+        // 가져온 호선정보 응답 처리
+        lineRes.enqueue(new Callback<LinkedHashMap>() {
+            @Override
+            public void onResponse(Call<LinkedHashMap> call, Response<LinkedHashMap> response) {
+                try {
+                    // 받은 데이터
+                    LinkedHashMap temp = response.body();
+
+                    JSONObject responseData = new JSONObject(temp);
+                    String RESULT_CODE = responseData.getJSONObject("errorMessage").getString("code");
+                    if (RESULT_CODE.equals("INFO-000")) {
+                        JSONArray row = responseData.getJSONArray("stationList");
+
+                        for(int i=0; i<row.length(); i++) {
+                            if (row.getJSONObject(i).getString("subwayNm").equals(stationLine)) {
+                                JSONObject stationInfo = row.getJSONObject(i);
+
+                                callback.destinationInfo(stationInfo);
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LinkedHashMap> call, Throwable t) {
+
+            }
+        });
     }
 }

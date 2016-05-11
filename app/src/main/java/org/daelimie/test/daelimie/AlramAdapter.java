@@ -2,12 +2,14 @@ package org.daelimie.test.daelimie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -76,8 +78,8 @@ public class AlramAdapter extends BaseAdapter {
             holder.des_locate = (TextView) view.findViewById(R.id.des_locate);
             holder.dep_time = (TextView) view.findViewById(R.id.dep_time);
             holder.des_time = (TextView) view.findViewById(R.id.des_time);
-            holder.edit_button = (Button) view.findViewById(R.id.edit_button);
-            holder.show_route_button = (Button) view.findViewById(R.id.show_route_button);
+            holder.edit_button = (LinearLayout) view.findViewById(R.id.edit_button);
+            holder.show_route_button = (ImageButton) view.findViewById(R.id.show_route_button);
 
             Log.d(TAG, "ids 길이:"+ids.size());
             if (ids.size() == 0) {
@@ -94,8 +96,8 @@ public class AlramAdapter extends BaseAdapter {
         // 각 뷰에 값넣기
 
         // TextView에 현재 position의 문자열 추가
-        holder.dep_locate.setText(m_dep.get(position));
-        holder.des_locate.setText(m_des.get(position));
+        holder.dep_locate.setText(Html.fromHtml(m_dep.get(position)));
+        holder.des_locate.setText(Html.fromHtml(m_des.get(position)));
         holder.dep_time.setText(m_depTime.get(position));
         holder.des_time.setText(m_desTime.get(position));
 
@@ -223,8 +225,8 @@ public class AlramAdapter extends BaseAdapter {
         TextView des_locate;
         TextView dep_time;
         TextView des_time;
-        Button edit_button;
-        Button show_route_button;
+        LinearLayout edit_button;
+        ImageButton show_route_button;
     }
 
     // 외부에서 아이템 추가 요청 시 사용

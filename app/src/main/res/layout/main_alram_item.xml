@@ -7,13 +7,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
         android:weightSum="10">
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@color/colorOrange"
             android:layout_weight="2"
@@ -31,7 +29,7 @@
                 android:id="@+id/dep_time" />
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="25dp"
+                android:layout_height="15dp"
                 android:src="@drawable/sandglass"/>
             <TextView
                 android:layout_width="match_parent"
@@ -47,8 +45,9 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:id="@+id/edit_button"
             android:orientation="vertical"
-            android:layout_weight="8">
+            android:layout_weight="7">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,26 +69,19 @@
                         android:textSize="20sp" />
                 </LinearLayout>
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/buttonGroup"
-                android:weightSum="10">
-                <!-- 수정/경로보기 버튼 넣을 것 -->
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:id="@+id/edit_button"
-                    android:text="수정" />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="7"
-                    android:id="@+id/show_route_button"
-                    android:text="경로 보기" />
-            </LinearLayout>
+
         </LinearLayout>
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:background="@color/colorRed"
+            android:id="@+id/show_route_button"
+            android:src="@drawable/road_003"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true"/>
     </LinearLayout>
 
 </RelativeLayout>

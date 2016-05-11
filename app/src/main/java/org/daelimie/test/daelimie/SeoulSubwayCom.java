@@ -21,4 +21,22 @@ public interface SeoulSubwayCom {
             @Path("line_name") String lineName,
             @Path("station_name") String stationName
     );
+
+    @GET("api/subway/{apikey}/json/subwayLine/0/5/{line_num}")
+    Call<LinkedHashMap> subwayLineInfo(
+            @Path("apikey") String apikey,
+            @Path("line_num") String line_num
+    );
+
+    @GET("api/subway/{apikey}/json/realtimeStationArrival/0/10/{station_name}")
+    Call<LinkedHashMap> subwayArrivalList(
+            @Path("apikey") String apikey,
+            @Path("station_name") String stationName
+    );
+
+    @GET("api/subway/{apikey}/json/stationInfo/0/5/{station_name}")
+    Call<LinkedHashMap> subwayStationInfo(
+            @Path("apikey") String apikey,
+            @Path("station_name") String stationName
+    );
 }

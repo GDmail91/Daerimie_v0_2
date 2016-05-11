@@ -21,6 +21,7 @@ import java.util.ArrayList;
 public class AlramReceiver extends BroadcastReceiver {
     private String TAG = "RECIEVER";
     private int subConfDegree;
+    private JSONObject arrivalInfo;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -141,7 +142,7 @@ Log.i(TAG, "알람 리시브: "+name);
             final LatLng departureStop = new LatLng(detailTransit.getJSONObject("departure_stop").getJSONObject("location").getDouble("lat"), detailTransit.getJSONObject("departure_stop").getJSONObject("location").getDouble("lng"));
             final Context mContext = context;
             final Handler repeatHandler = new Handler();
-            Runnable reapetRun = new Runnable() {
+            Runnable repeatRun = new Runnable() {
                 @Override
                 public void run() {
                     Log.d(PTAG, "반복 실행");
@@ -152,54 +153,132 @@ Log.i(TAG, "알람 리시브: "+name);
                         Log.d(PTAG, "현재시간: " + System.currentTimeMillis() + ", 비교시간: "+tempTime);
                         Log.d(PTAG, "시간 비교값: " + Long.compare(System.currentTimeMillis(), tempTime));
 
+                        Log.d(PTAG, "타야할 차량: " + detailTransit.getJSONObject("line").getString("short_name") + " 번");
+                        Log.d(PTAG, "타야할 정거장 이름: " + detailTransit.getJSONObject("departure_stop").getString("name"));
+                        final String lineNum = detailTransit.getJSONObject("line").getString("short_name");
+
+                        final String agency = detailTransit.getJSONObject("line").getJSONArray("agencies").getJSONObject(0).getString("name");
+
+                        final Runnable mRun = this;
+                        Log.d(TAG, "정거장 이름 : "+detailTransit.getJSONObject("departure_stop").getString("name"));
                         switch (detailTransit.getJSONObject("line").getJSONObject("vehicle").getString("type")) {
                             case "BUS": // 버스인 경우
                                 // TODO 버스
                                 // TODO 도착지까지 시간 계산
-                                Log.d(PTAG, "타야할 차량: " + detailTransit.getJSONObject("line").getString("short_name") + " 번");
-                                Log.d(PTAG, "타야할 정거장 이름: " + detailTransit.getJSONObject("departure_stop").getString("name"));
                                 // TODO 도착지 전전역 버스 도착 계산
-                                previousStop = busArrivalCheck("버스정보 입력할 것", tempTime);
 
-                                // TODO 버스 전전역일 경우
-                                if (previousStop) {
-                                    // 버스 전전역 알림
-                                    Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
-                                    popupIntent.putExtra("alarm_id", alarm_id);
-                                    popupIntent.putExtra("title", "전전역 도착 알림");
-                                    popupIntent.putExtra("message", "승차 하실건가요?");
-                                    popupIntent.putExtra("transit", "BUS");
-                                    popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
-                                    popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
-                                    popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    mContext.startActivity(popupIntent);
-                                } else {
-                                    // 30초마다 반복
-                                    repeatHandler.postDelayed(this, 30 * 1000);
-                                }
+                                BusInfo busInfo = new BusInfo();
+
+                                busInfo.getBusArrivalInfo(lineNum, detailTransit.getJSONObject("departure_stop").getString("name"), agency, new BusInfoCallback() {
+
+                                    @Override
+                                    public void busInfoCallback(JSONObject busInfo) {
+                                        Log.d(TAG, "busInfo");
+                                        try {
+                                            if (busInfo.getBoolean("result") && busInfo.getJSONObject("data").getInt("locate_at1") < 2) {
+                                                // 버스 전전역 알림
+                                                Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
+                                                popupIntent.putExtra("alarm_id", alarm_id);
+                                                popupIntent.putExtra("title", "버스 도착 알림");
+                                                popupIntent.putExtra("message", "버스가 전전역에 도착하였습니다.\n승차 하실건가요?");
+                                                popupIntent.putExtra("busInfo", busInfo.getJSONObject("data").toString());
+                                                popupIntent.putExtra("transit", "BUS");
+                                                popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
+                                                popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
+                                                popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                mContext.startActivity(popupIntent);
+                                            } else {
+                                                Log.d(TAG, "버스도착 시간 안됨");
+                                                // 30초마다 반복
+                                                repeatHandler.postDelayed(mRun, 30 * 1000);
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
                                 break;
                             case "SUBWAY": // 지하철인 경우
                                 // TODO 지하철
                                 // TODO 도착지까지 시간 계산
                                 // TODO 도착지 전역 지하철 도착 계산
-                                previousStop = subwayArrivalCheck(context, "지하철정보 입력할 것", tempTime);
+                                final String seoulKey = context.getString(R.string.SEOUL_API_KEY);
+                                SubwayInfo sbInfo = new SubwayInfo();
 
-                                // TODO 지하철 전역일 경우
-                                if (previousStop) {
-                                    // 지하철 전역 알림
-                                    Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
-                                    popupIntent.putExtra("alarm_id", alarm_id);
-                                    popupIntent.putExtra("title", "전역 도착 알림");
-                                    popupIntent.putExtra("message", "승차 하실건가요?");
-                                    popupIntent.putExtra("transit", "SUBWAY");
-                                    popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
-                                    popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
-                                    popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    mContext.startActivity(popupIntent);
-                                } else {
-                                    // 30초마다 반복
-                                    repeatHandler.postDelayed(this, 30 * 1000);
-                                }
+                                // 지하철 일경우 지하철 역 정보 수정(요청 정보에 맞게)
+                                final String departureNameForConf = detailTransit.getJSONObject("departure_stop").getString("name");
+                                String tempDepartureName = departureNameForConf;
+                                if (departureNameForConf.lastIndexOf("역") > 0)
+                                    tempDepartureName = departureNameForConf.substring(0, departureNameForConf.lastIndexOf("역"));
+                                final String departureName = tempDepartureName;
+
+                                String tempArrivalName = detailTransit.getJSONObject("arrival_stop").getString("name");
+                                if (tempArrivalName.equals("서울역"))
+                                    tempArrivalName += "역";
+                                if (tempArrivalName.lastIndexOf("역") > 0)
+                                    tempArrivalName = tempArrivalName.substring(0, tempArrivalName.lastIndexOf("역"));
+                                final String arrivalName = tempArrivalName;
+
+                                sbInfo.getSubwayArrivalList(context.getString(R.string.SEOUL_REALTIME_API_KEY), lineNum, departureName, arrivalName, new SubwayInfoCallback() {
+                                    @Override
+                                    public void subwayDegree(int confDegree) {
+                                        // NOTHING TODO
+                                    }
+
+                                    @Override
+                                    public void subwayArrivalList(final JSONArray subArrivalInfo, final JSONObject targetSubInfo) {
+                                        // TODO 지하철 전역일 경우
+                                        try {
+                                            String tempLineNum = "";
+                                            if (lineNum.equals("1호선") && subArrivalInfo.getJSONObject(0).getInt("statnId") > 1001000133) {
+                                                tempLineNum = "경부선";
+                                            } else {
+                                                tempLineNum = lineNum;
+                                            }
+                                            Log.d(PTAG, "혼잡도 계산: 시작 " + tempLineNum + " / "+departureName+" / "+subArrivalInfo.getJSONObject(0).toString());
+                                            new SubwayInfo().confusionDegreeWithName(seoulKey, tempLineNum, departureName, new SubwayInfoCallback() {
+                                                @Override
+                                                public void subwayDegree(final int confDegree) {
+                                                    subConfDegree = confDegree;
+                                                    Log.d(TAG, "지하철 혼잡도: " + subConfDegree);
+
+                                                    try {
+                                                        if (targetSubInfo.getInt("arvlCd") == 0
+                                                                || targetSubInfo.getInt("arvlCd") == 1
+                                                                || targetSubInfo.getInt("arvlCd") == 3
+                                                                || targetSubInfo.getInt("arvlCd") == 4
+                                                                || targetSubInfo.getInt("arvlCd") == 5) {
+                                                            // 지하철 전역 알림
+                                                            Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
+                                                            popupIntent.putExtra("alarm_id", alarm_id);
+                                                            popupIntent.putExtra("title", "지하철 도착 알림");
+                                                            popupIntent.putExtra("message", "지하철이 전역에 도착하였습니다.\n승차 하실건가요?\n현재 차량 복잡도: "+confDegree+"%");
+                                                            popupIntent.putExtra("subwayInfo", subArrivalInfo.toString());
+                                                            popupIntent.putExtra("transit", "SUBWAY");
+                                                            //popupIntent.putExtra("confDegree", confDegree);
+                                                            popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
+                                                            popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
+                                                            popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            mContext.startActivity(popupIntent);
+                                                        } else {
+                                                            // 30초마다 반복
+                                                            repeatHandler.postDelayed(mRun, 30 * 1000);
+                                                        }
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void subwayArrivalList(JSONArray subArrivalInfo, JSONObject targetSubInfo) {
+                                                    // NOTHING TODO
+                                                }
+                                            });
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
                                 break;
                         }
                     } catch (JSONException e) {
@@ -207,21 +286,32 @@ Log.i(TAG, "알람 리시브: "+name);
                     }
                 }
             };
-            repeatHandler.postDelayed(reapetRun, 30 * 1000);
+            repeatHandler.postDelayed(repeatRun, 30 * 1000);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
-
+/*
     // TODO
-    protected boolean busArrivalCheck(String busInfo, long tempTime) {
+    protected boolean busArrivalCheck(Context context, String busNum, String stationName, long tempTime) {
+
+        BusInfo busInfo = new BusInfo();
+
+        busInfo.getBusArrivalInfo("504", "신림사거리.신원시장", "서울특별시버스운송사업조합",new BusInfoCallback() {
+
+            @Override
+            public void busInfoCallback(JSONObject busInfo) {
+                arrivalInfo = busInfo;
+            }
+        });
+
         // TODO 도착했는지 안했는지로변경
         if(Long.compare(System.currentTimeMillis(), tempTime) >= 0)
             return true;
         else
             return false;
-    }
-
+    }*/
+/*
     // TODO
     protected boolean subwayArrivalCheck(Context context, String subwayInfo, long tempTime) {
         String seoulKey = context.getString(R.string.SEOUL_API_KEY);
@@ -233,6 +323,23 @@ Log.i(TAG, "알람 리시브: "+name);
                 subConfDegree = confDegree;
                 Log.d(TAG, "지하철 혼잡도: "+subConfDegree);
             }
+
+            @Override
+            public void subwayArrivalList(JSONArray upSubInfo, JSONArray downSubInfo) {
+                // NOTHING TODO
+            }
+        });
+
+        sbInfo.getSubwayArrivalList(context.getString(R.string.SEOUL_REALTIME_API_KEY), "1호선", "서울", new SubwayInfoCallback() {
+            @Override
+            public void subwayDegree(int confDegree) {
+                // NOTHING TODO
+            }
+
+            @Override
+            public void subwayArrivalList(JSONArray upSubInfo, JSONArray downSubInfo) {
+                context.
+            }
         });
 
         // TODO 도착했는지 안했는지로변경
@@ -240,7 +347,7 @@ Log.i(TAG, "알람 리시브: "+name);
             return true;
         else
             return false;
-    }
+    }*/
 
 
 }
