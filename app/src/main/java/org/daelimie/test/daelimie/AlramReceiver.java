@@ -22,6 +22,7 @@ public class AlramReceiver extends BroadcastReceiver {
     private String TAG = "RECIEVER";
     private int subConfDegree;
     private JSONObject arrivalInfo;
+    private boolean isRide;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -77,6 +78,8 @@ Log.i(TAG, "알람 리시브: "+name);
             //Log.d(TAG, intent.getIntExtra("instanceNumber", 0)+"");
             int alarm_id = intent.getIntExtra("alarm_id", 0);
             Log.d(TAG, "알람 ID: "+alarm_id);
+            // 탑승 초기화
+            isRide = false;
             // DB에 현재 인덱스 가져옴
             int step_index = dbManager.getIndex(alarm_id);
 
@@ -119,7 +122,7 @@ Log.i(TAG, "알람 리시브: "+name);
                             }
                             break;
                         case "TRANSIT": // 교통수단 탈 경우
-                                    pollingTransit(context, eachStep, alarm_id, System.currentTimeMillis() + (timer * 1000));
+                            pollingTransit(context, eachStep, alarm_id, System.currentTimeMillis() + (timer * 1000));
                             break;
                     }
                 } else {
@@ -175,22 +178,37 @@ Log.i(TAG, "알람 리시브: "+name);
                                     public void busInfoCallback(JSONObject busInfo) {
                                         Log.d(TAG, "busInfo");
                                         try {
-                                            if (busInfo.getBoolean("result") && busInfo.getJSONObject("data").getInt("locate_at1") < 2) {
-                                                // 버스 전전역 알림
-                                                Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
-                                                popupIntent.putExtra("alarm_id", alarm_id);
-                                                popupIntent.putExtra("title", "버스 도착 알림");
-                                                popupIntent.putExtra("message", "버스가 전전역에 도착하였습니다.\n승차 하실건가요?");
-                                                popupIntent.putExtra("busInfo", busInfo.getJSONObject("data").toString());
-                                                popupIntent.putExtra("transit", "BUS");
-                                                popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
-                                                popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
+                                            if (isRide) {
+                                                // 탑승 중일경우 내림알림
+                                                // TODO 진동 및 화면 켜기
+
+                                                // 탑승 플래그 off
+                                                isRide = false;
+                                                Intent popupIntent = new Intent(mContext.getApplicationContext(), InstantAlram.class);
+                                                popupIntent.putExtra("title", "내림 알림");
+                                                popupIntent.putExtra("message", "내릴 준비 하셔야 합니다.");
                                                 popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                                 mContext.startActivity(popupIntent);
                                             } else {
-                                                Log.d(TAG, "버스도착 시간 안됨");
-                                                // 30초마다 반복
-                                                repeatHandler.postDelayed(mRun, 30 * 1000);
+                                                if (busInfo.getBoolean("result") && busInfo.getJSONObject("data").getInt("locate_at1") < 2) {
+                                                    // 탑승 플래그 on
+                                                    isRide = true;
+                                                    // 버스 전전역 알림
+                                                    Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
+                                                    popupIntent.putExtra("alarm_id", alarm_id);
+                                                    popupIntent.putExtra("title", "버스 도착 알림");
+                                                    popupIntent.putExtra("message", "버스가 전전역에 도착하였습니다.\n승차 하실건가요?");
+                                                    popupIntent.putExtra("busInfo", busInfo.getJSONObject("data").toString());
+                                                    popupIntent.putExtra("transit", "BUS");
+                                                    popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
+                                                    popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
+                                                    popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    mContext.startActivity(popupIntent);
+                                                } else {
+                                                    Log.d(TAG, "버스도착 시간 안됨");
+                                                    // 30초마다 반복
+                                                    repeatHandler.postDelayed(mRun, 30 * 1000);
+                                                }
                                             }
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -243,26 +261,41 @@ Log.i(TAG, "알람 리시브: "+name);
                                                     Log.d(TAG, "지하철 혼잡도: " + subConfDegree);
 
                                                     try {
-                                                        if (targetSubInfo.getInt("arvlCd") == 0
-                                                                || targetSubInfo.getInt("arvlCd") == 1
-                                                                || targetSubInfo.getInt("arvlCd") == 3
-                                                                || targetSubInfo.getInt("arvlCd") == 4
-                                                                || targetSubInfo.getInt("arvlCd") == 5) {
-                                                            // 지하철 전역 알림
-                                                            Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
-                                                            popupIntent.putExtra("alarm_id", alarm_id);
-                                                            popupIntent.putExtra("title", "지하철 도착 알림");
-                                                            popupIntent.putExtra("message", "지하철이 전역에 도착하였습니다.\n승차 하실건가요?\n현재 차량 복잡도: "+confDegree+"%");
-                                                            popupIntent.putExtra("subwayInfo", subArrivalInfo.toString());
-                                                            popupIntent.putExtra("transit", "SUBWAY");
-                                                            //popupIntent.putExtra("confDegree", confDegree);
-                                                            popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
-                                                            popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
+                                                        if (isRide) {
+                                                            // 탑승 중일경우 내림알림
+                                                            // TODO 진동 및 화면 켜기
+
+                                                            // 탑승 플래그 off
+                                                            isRide = false;
+                                                            Intent popupIntent = new Intent(mContext.getApplicationContext(), InstantAlram.class);
+                                                            popupIntent.putExtra("title", "내림 알림");
+                                                            popupIntent.putExtra("message", "내릴 준비 하셔야 합니다.");
                                                             popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                                             mContext.startActivity(popupIntent);
                                                         } else {
-                                                            // 30초마다 반복
-                                                            repeatHandler.postDelayed(mRun, 30 * 1000);
+                                                            if (targetSubInfo.getInt("arvlCd") == 0
+                                                                    || targetSubInfo.getInt("arvlCd") == 1
+                                                                    || targetSubInfo.getInt("arvlCd") == 3
+                                                                    || targetSubInfo.getInt("arvlCd") == 4
+                                                                    || targetSubInfo.getInt("arvlCd") == 5) {
+                                                                // 탑승 플래그 on
+                                                                isRide = true;
+                                                                // 지하철 전역 알림
+                                                                Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
+                                                                popupIntent.putExtra("alarm_id", alarm_id);
+                                                                popupIntent.putExtra("title", "지하철 도착 알림");
+                                                                popupIntent.putExtra("message", "지하철이 전역에 도착하였습니다.\n승차 하실건가요?\n현재 차량 복잡도: " + confDegree + "%");
+                                                                popupIntent.putExtra("subwayInfo", subArrivalInfo.toString());
+                                                                popupIntent.putExtra("transit", "SUBWAY");
+                                                                //popupIntent.putExtra("confDegree", confDegree);
+                                                                popupIntent.putExtra("departure_stop_lat", departureStop.latitude);
+                                                                popupIntent.putExtra("departure_stop_lng", departureStop.longitude);
+                                                                popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                mContext.startActivity(popupIntent);
+                                                            } else {
+                                                                // 30초마다 반복
+                                                                repeatHandler.postDelayed(mRun, 30 * 1000);
+                                                            }
                                                         }
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
