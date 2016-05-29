@@ -3,6 +3,7 @@ package org.daelimie.test.daelimie;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,7 +23,7 @@ public class AlramReceiver extends BroadcastReceiver {
     private String TAG = "RECIEVER";
     private int subConfDegree;
     private JSONObject arrivalInfo;
-    private boolean isRide;
+    private static boolean isRide;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -38,6 +39,7 @@ Log.i(TAG, "알람 리시브: "+name);
             Bundle bundle = intent.getExtras();
             int alarm_id = intent.getIntExtra("alarm_id", 0);
             Log.d(TAG, "알람 ID: "+intent.getIntExtra("alarm_id", 0));
+            Log.d(TAG, intent.getExtras().toString());
             bundle.clear();
 
             try {
@@ -61,6 +63,7 @@ Log.i(TAG, "알람 리시브: "+name);
                 Log.d(TAG, "저장후 인덱스: " + dbManager.getIndex(alarm_id));
                 // 인스턴스 알림 등록
                 AlarmHandler.alarmHandler.setInstanceAlarm(context, timer * 1000, steps.toString(), alarm_id);
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -178,12 +181,17 @@ Log.i(TAG, "알람 리시브: "+name);
                                     public void busInfoCallback(JSONObject busInfo) {
                                         Log.d(TAG, "busInfo");
                                         try {
+                                            SharedPreferences pref = context.getSharedPreferences("pref", context.MODE_PRIVATE);
+                                            boolean isRide = pref.getBoolean("isRide", false);
+                                            Log.d(TAG, "is ride? : "+isRide);
                                             if (isRide) {
                                                 // 탑승 중일경우 내림알림
                                                 // TODO 진동 및 화면 켜기
 
                                                 // 탑승 플래그 off
-                                                isRide = false;
+                                                SharedPreferences.Editor editor= pref.edit();
+                                                editor.putBoolean("isRide", false);
+                                                editor.commit();
                                                 Intent popupIntent = new Intent(mContext.getApplicationContext(), InstantAlram.class);
                                                 popupIntent.putExtra("title", "내림 알림");
                                                 popupIntent.putExtra("message", "내릴 준비 하셔야 합니다.");
@@ -192,7 +200,9 @@ Log.i(TAG, "알람 리시브: "+name);
                                             } else {
                                                 if (busInfo.getBoolean("result") && busInfo.getJSONObject("data").getInt("locate_at1") < 2) {
                                                     // 탑승 플래그 on
-                                                    isRide = true;
+                                                    SharedPreferences.Editor editor= pref.edit();
+                                                    editor.putBoolean("isRide", true);
+                                                    editor.commit();
                                                     // 버스 전전역 알림
                                                     Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
                                                     popupIntent.putExtra("alarm_id", alarm_id);
@@ -261,12 +271,17 @@ Log.i(TAG, "알람 리시브: "+name);
                                                     Log.d(TAG, "지하철 혼잡도: " + subConfDegree);
 
                                                     try {
+                                                        SharedPreferences pref = context.getSharedPreferences("pref", context.MODE_PRIVATE);
+                                                        boolean isRide = pref.getBoolean("isRide", false);
+                                                        Log.d(TAG, "is ride? : "+isRide);
                                                         if (isRide) {
                                                             // 탑승 중일경우 내림알림
                                                             // TODO 진동 및 화면 켜기
 
                                                             // 탑승 플래그 off
-                                                            isRide = false;
+                                                            SharedPreferences.Editor editor= pref.edit();
+                                                            editor.putBoolean("isRide", false);
+                                                            editor.commit();
                                                             Intent popupIntent = new Intent(mContext.getApplicationContext(), InstantAlram.class);
                                                             popupIntent.putExtra("title", "내림 알림");
                                                             popupIntent.putExtra("message", "내릴 준비 하셔야 합니다.");
@@ -279,7 +294,9 @@ Log.i(TAG, "알람 리시브: "+name);
                                                                     || targetSubInfo.getInt("arvlCd") == 4
                                                                     || targetSubInfo.getInt("arvlCd") == 5) {
                                                                 // 탑승 플래그 on
-                                                                isRide = true;
+                                                                SharedPreferences.Editor editor= pref.edit();
+                                                                editor.putBoolean("isRide", true);
+                                                                editor.commit();
                                                                 // 지하철 전역 알림
                                                                 Intent popupIntent = new Intent(mContext.getApplicationContext(), SelectableAlarm.class);
                                                                 popupIntent.putExtra("alarm_id", alarm_id);

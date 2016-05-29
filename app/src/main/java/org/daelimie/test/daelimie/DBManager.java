@@ -55,6 +55,7 @@ public class DBManager extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS dic");
         onCreate(db);
+        db.close();
     }
 
     /** 삽입 SQL
@@ -118,6 +119,8 @@ public class DBManager extends SQLiteOpenHelper {
             dbW.endTransaction(); //트랜잭션을 끝내는 메소드.
         }
 
+        dbW.close();
+        dbR.close();
         return topNumber+1;
     }
 
@@ -170,6 +173,8 @@ public class DBManager extends SQLiteOpenHelper {
             dbW.endTransaction(); //트랜잭션을 끝내는 메소드.
         }
 
+        dbW.close();
+
         return ids;
     }
 
@@ -191,6 +196,7 @@ public class DBManager extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
+        db.close();
     }
 
     public void deleteAll() {
@@ -205,6 +211,7 @@ public class DBManager extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
+        db.close();
     }
 
     public int printCountOfData() {
@@ -215,6 +222,7 @@ public class DBManager extends SQLiteOpenHelper {
         while(cursor.moveToNext()) {
             count += cursor.getInt(0);
         }
+        db.close();
         return count;
     }
 
@@ -249,6 +257,7 @@ public class DBManager extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
+        db.close();
         return allData;
     }
 
@@ -282,6 +291,7 @@ public class DBManager extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
+        db.close();
         return data;
     }
 
@@ -315,6 +325,7 @@ public class DBManager extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
+        db.close();
         return data;
     }
 
@@ -332,6 +343,7 @@ public class DBManager extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
+        db.close();
         return data;
     }
 
@@ -343,6 +355,7 @@ public class DBManager extends SQLiteOpenHelper {
             cur_index = cursor.getInt(1);
         }
 
+        db.close();
         return cur_index;
     }
 
@@ -362,6 +375,7 @@ public class DBManager extends SQLiteOpenHelper {
             dbW.close();
         }
 
+        dbR.close();
         return cur_index;
     }
 

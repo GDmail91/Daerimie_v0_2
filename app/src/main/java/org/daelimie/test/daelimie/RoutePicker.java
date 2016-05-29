@@ -200,6 +200,7 @@ public class RoutePicker extends AppCompatActivity {
                         }
                         Log.d(TAG, String.valueOf(dbManager.printCountOfData()));
 
+                        Log.d(TAG, alarm_id+"");
 
                         Intent intent = new Intent(RoutePicker.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
